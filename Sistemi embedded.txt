@@ -403,6 +403,78 @@ processo planare: principale processo di produzione degli ASIC.
 				  						  
 				  processo: 1 - si parte da un wafer di silicio
 				   			 
-				   			2 - si com
+				   			2 - deposizione: si cosparge il wafer con del materiale photoresist, con proprietà di monomero se investito dalla luce
+				   			
+				   			3 - mascheramento: si illumina il wafer con una maschera che disegna le varie piste del circuito
+				   			
+				   			4 - lavaggio: si toglie il photoresist in eccesso tramite agenti chimici
+				   			
+				   			5 - p-well: si droga un area ampia a silicio p
+				   			
+				   			6 - base: si opera un'altra operazione di deposizione, lavaggio, e maschramento nella zona p-well per stampare le zone che andranno drogte n
+				   			
+				   			7 - emettitore e collettore: si fa la stessa cosa di sopra però drogando p
+				   			
+				   			8 - ossidazione: si deposita uno strato di ossido di silicio su tutto il wafer
+				   			
+				   			9 - mascheramento isolante: si opera una nuova operazione di mascheramento per marcare le zone di isolante da rimuovere
+				   			
+				   			10 - lavaggio isolante: tramite un bagno acido rimuovo le parti di isolante in eccesso
+				   			
+				   			11 - deposito conduttore: deposito il rame che andrà a creare i contatti dei vari componenti
+				   			
+				   			12 - rimozione conduttore
+				   			
+				   			13 - fabbricazione interconnessioni: vengono creati più strati di materiale isolante e conduttore e per ogni strato si crea una singola pista di interconnessione
+				   			
+il processo planare funziona bene nei circuiti di piccole dimensioni, quando lo si vuole applicare a circuiti di grandi dimensioni la sua efficacia e flessibilità
+sparisce 
+si usano 3 processi per ovviare a questo problema(questi processi lasciano al progettista il compito di assemblare i vari componenti): 
+
+		- standard cell: si alza il livello di astrazione da singolo transistor a cella.
+						 una cella è un insieme di tutti i componenti base che servono già pre assemblati, possono essere complesse con flip-flop, bistabili ecc
+						 le celle devono essere disposte in manera rigida sulla board e devono avere determinate caratteristiche:
+						 
+						 		- devono avere tutte la stessa altezza: facilita il piazzamento
+						 		
+						 il piazzamento sul chip segue queste regole:
+						 		
+						 		- 3 zone: - pad-ring: ospitano il pad del chip, a loro volta divise in I/O site o pad site
+						 					
+						 				  - row: ospitano la logica funzionale, divise in core site
+						 				  
+						 				  - channel: ospitano i canali d interconnessione
+						 
+						 anche al loro interno le celle devo seguire una precisa geometria che identifica per esempio dove piazzare i p-mos e n-mos
+						 i vdd rail e i vss rail sono interni ad ogni cell
+						 
+						 le celle sono identificate da: - nome
+						 								- funzionalità
+						 								- proprietà non funzionali
+						 								- numero, nome e posizione dei pin
+						 								- angolo di posizionamento
+		
+		- gate array / sea of gate: si parte da un wafer di silicio parzialmente fabbricato( ci sono tutti i transistor) separati da canali di routing
+									se le interconnessioni sono fatte sopra le celle si parla di sea of gate
+									i vdd rail e i vss rail sono ai bordi del chip
+									
+		- full custom: si lascia al progettista massima libertà, molto complesso, si preferisce partire da macrocelle
+		
+		
+per semplificare il processo di progettazione si usano logiche programmabili, che sono circuiti già interamente fabbricati e in cui le interconnessioni e i componenti possono essere
+configurati
+
+ne esistono 3 tipi di PLD: - one-time programmable: programmabile solo una volta, applico alte tensioni per modificare la struttura di piccolissime aree
+
+						   - programmabile: posso riprogrammarle con una sequenza opportuna di bit
+						   
+						   - riconfigurabile: posso riprogrammabile anche senza dover spegnere il circuito
+						   
+
+						 		
+						 
+				   	 
+				   			
+				   			
 				  
 				  						   								    						   						   			 		   
