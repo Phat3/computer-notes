@@ -1,0 +1,408 @@
+SISTEMI EMBEDDED
+
+---------------------- Capitolo 1 ----------------------
+
+sistemi embedded: struttura di supporo al funzionamento di un applicazione con molta interazione con l'ambiente esterno in cui
+				  i comandi non sono necessariamente immessi dall'utente umano, ma spesso da sensori e possono derivare da
+				  dati.
+				  anche l'output non deve essere necessariamente sotto forma di interfaccia grafica ma può essere costituito solo
+				  da un insieme di segnali.
+				  
+l'uso dei sistemi embedded si ha quando bisogna far girare una sola applicazione altamente specializzata,
+e questo aspetto fa si che posso molto ottimizzare il codice in base al microcontrollore scelto, così da abbassare i costi finali
+
+parametri da valutare in fase di progettazione: - Volumi: volumi della produzione finale
+														  se ne produco molti è meglio valutare di creare un circuito stampato ad hoc
+														  
+												- Interfacce di comunicazione: valutare cosa è utile e cosa è superfluo
+												
+												- Interfacce utente: valutare se crearla ad hoc o riusare una gia esistente
+												
+												- Consumo energetico
+												
+												- time to market: scegliere i vomponenti giusti al monìmento giusto
+																  non è detto che la soluzione a costo minore sia la migliore
+																  (altre aziende potrebbero aver già introdotto quella stessa tecnologia
+																  anni addietro)
+												
+												- tempo di vita del prodotto
+												
+4 principali contesti applicativi: - infrstrutture: ponti, autostrade ecc.. 
+(tutte queste aree hanno forti									
+vincoli implementativi)			   - sistemi nomadici: animali, persone ecc...
+								   
+								   - spazi privati: abiatazioni, edifici ecc..
+								   
+								   - sistemi industriali: aerospaziale, medicale ecc..
+								   
+i sistemi embedded devono essere progettati in modo da rispettare iseguenti aspetti:
+
+	- Affidabilità: il sistema deve avere una bassa probabilità di guasto
+	
+	- Manutenibilità: il sistema deve essere facilmente riparato
+	
+	- Disponibilità: deve essere sempre funzionante
+	
+	- Sicurezza: deve essere immune dal leaking delle informazioni
+	
+	- Safety: a fronte di n guasto non deve provocare danno alle persone che lo usano
+	
+la prima fase di progettazione è detta "System Design", in questa fase si cerca di stimare i costi e le performance che deve avere
+l'applicazione cosi da scegliere opportunamente i componenti da usare
+
+bisogna integrare bene eterogeneità e costruttività:
+	
+	- eterogeneità: costruire un sistema utilizzando componenti con funzionalità differenti tra loro(eterogenei)
+	
+	- componibilità: costruire un sistema componendo blocchi più piccoli dalle funzionalità note, quindi progettare interfacce tra i vari componenti
+	
+	
+
+---------------------- Capitolo 2 ----------------------	 
+	
+l'attività di progettazione è divisa in 4 fasi: - definizione dell'architetture
+												- partizionamento in hardware software e comunicazione
+												- implementazione hardware software e comunicazione
+												- produzione
+
+anche i progettisti più esperti si avvalgono di metodi empirici in fase di progettazione
+
+3 tipi di soluzioni architetturali: - 1 - PCB(printed circuit board): tutti i componenti sono assemblati sulla board
+								   	- 2 - SoC(system on a chip): tutti i componenti sono su un unico chip
+								   	- 3 - sistemi distribuiti: la parte computazionale e di dati non risiede su un singolo sistema ma su più sottoinsiemi
+
+1 - PCB: componenti utilizzati: - componenti discreti: resistenze transistor condensatori ecc...
+
+								- alimentazione: ciò che alimenta tutto il sistema.
+												 ci s avvale di sequencer ( non molto utili a bassi voltaggi perchè introducono molti errori)	
+												 
+								- convertitori e filtri: ACD,DAC 
+								
+								- componenti elettro-ottici: si hanno quando il sistema ha a che fare con segnali elettromagnetici e segnali
+								                             di natura ottica
+								                             
+								- componenti a radiofrequenza: antenne ecc..
+								
+								- display
+								
+								- sensori
+								
+		  una volta scelti i componenti bisogna scegliere il package in cui racchiuderli
+		  ne esistono di 3 tipi: 
+		  				 
+		  				 - plastica: mediamente economico e offre buone caratteristiche come una buona dissipazione termica
+		  		
+		  			     - metallo/ ceramica: costosi ma offrono ottime caratteristiche
+		  
+		  			     - resina: molto economica, si usa solo nei sistemi a bassissimo budget
+		  			     
+		  inoltre i package differiscono anche dal : 
+		  				 
+		  				 - tecnica di montaggio: possono essere a buco forato(pin saldati sulla faccia opposta)
+		  				 						 oppure ad montaggio superficiale (pin saldati sulla stessa faccia del componente)
+		  				 						 
+		  				 - posizionamento dei pin: possono essere solo su 2 lati, su 2 lati e con pin più piccoli, su tutti e 4 i lati oppure su tutta 
+		  				 						   la superficie sottostante
+		  				 						   
+		  ci sono 3 componenti fondamentali che formano un PCB:
+		  
+		  				- materiale conduttore: spesso rame
+		  				
+		  				- materiale isolante: spesso resina di vetro 
+		  				
+		  				- materiale adesivo: unisce gli altri 2 strati, pre preq
+		  				
+		  fabbricazione PCB: 1 - si stende una lastra di materiale isolante e subito sopra viene fissato il ame
+		  					 
+		  					 2 - si tracciano le piste con del materiale fotosensibile attraverso una tecnica di fotolitografia
+		  					 
+		  					 3 - con materiali chimici e acidi appositi si rimuove il rame in eccesso e il materiale fotosensibile
+		  					 
+		  					 4 - vengono uniti più strati attraverso il materiale adesivo
+		  					 
+		  					 5 - si fora la scheda per creare gli spazi per i pin:
+		  					 		
+		  					 		3 tipi di fori: - passanti(da parte a parte)
+		  					 						
+		  					 						- ciechi(il foro non sbuca dall'altra parte)
+		  					 						
+		  					 						- interni
+		  					 
+		  					 6 - si deposita una sottile patina isolante sulla superficie esterna della board
+		  					 
+		  	una volta finita la progettazione si passa alla fase di testing, l'idea che sta alla base è quella di misurare la resistenza tra 2 componenti 
+		  	del circuito: se questi in fase di progetto erano in contatto allora si avrà una bassissima resistenza mentre  se erano disgiunti si avrà una resistenza
+		  	altissima.
+		  	ci sono 2 supporti per il testing: - letto di chiodi: tantissimi probe che iniettano corrente nei punti desiderati
+		  									   - flying-probe: pochi probe ma che si spostano di precisione sui componenti della board da testare
+		  									   
+		  	la maggior problematica che sorge quando si progetta un PCB è l'integrazione tra i componenti, infatti molto spesso capita che i componenti siano molto
+		  	eterogenei tra di loro.si pò ovviare a questo problema facendo il pinout dei componenti in fase di partizionamento del sistema
+		  	
+		  	altre problematiche : - latenza tra le piste di comunicazione e le comunicazioni all'interno dei singoli componenti
+		  					 
+			boundary scan: tecnica di testing che collega tutti i pin con una sequenza di flip flop e multiplexer.
+						   tutti i pin sono collegati da un unico grande registro sequenziale a scorrimento detto scan chain, e questo permette di portare e osservare 
+						   l valore logico su ciascun pin
+						   
+
+-SoC: vantaggi: - costo unitario: diminuisce il costo dei componenti necessari ma si alza notevolmente il costo di progettazione( ha senso solo in caso di elevate produzioni)
+				
+				- prestazioni: integrando tutto all'interno del singolo chip si eliminano le poste di interconnessione che provocavano una grande latenza nelle comunicazioni
+				
+				- sicurezza: è molto più difficile effettuare del reverse engineering sulla struttura di un Soc rispetto ad un PCB 
+				
+				- assorbimento energetico: si ha un minore assorbimento energetico integrando tutti i componenti su singolo chip
+				
+				- ingressi/ uscite
+				
+				
+	 componenti: - uno o più microprocessori
+	 
+	 			 - memorie SRAM o DRAM, rom , flash ecc..
+	 			 
+	 			 - filtri, decoder ecc..
+	 			 
+	 			 - blocchi di temporizzazione
+	 			 
+	 			 - blocchi digitali specifici per l'applicazione
+	 			 
+	 			 - blocchi di alimentazione
+	 			 
+	 			 - interfacce analogiche, convertitori ecc..
+	 			 
+	 come nelle PCB il primo passo in fase di progettazione è il partizionamento del sistema, il secondo passo invece è decidere l'allocazione delle risorse sui vari
+	 componenti di calcolo.
+	 infine il terzo passo è decidere l'allocazione della memoria; ci sono 2 tipi di possibilità:
+	 
+	 			- memoria centralizzata: semplifica la comunicazione dei dati tra i vari componenti essendo tutta accentrata in un unico punto, ma si creano molti 
+	 									conflitti nell'accesso ai dati. è necessario introdurre un arbiter degli accessi
+	 									
+	 			- memoria decentralizzata: è una piccola parte di memoria locale ad ogni componente, si complica di molto il problema delle comunicazioni tra i vari componenti
+	 			
+	 a seconda dell' approccio scelto si deve decidere il sistema di comunicazione appropriato tra bus gerarchici e NoC
+	 
+	 il test viene eseguito fin da subito in fase di progettazione grazie a moduli creati ad hoc che vengono affiancati al chip
+	 
+	 boundary partial scan: le catene coinvolgono parte dei registri del chip, inoltre la catena non tocca solo i punti di comunicazione co l'esterno ma anche la logica interna
+	 						 per poter configurare questa catena si usa il controller TAP che interpreta un semplice protocollo formato da comandi di configurazione.
+	 						 il più noto è il JTAG
+	 						 
+	 BIST: creata per ovviare al grande onere computazionale di creare vettori di test significativi da dare in pasto al boundary scan.
+	 	   si possono generare i 2 modi queste sequenze: - test esaustivo: provo tutte le possibili combinazioni di ingresso
+	 	   												 - test pseudo-esaustivo:suddivido gli ingressi in gruppi e ne testo solo quelli significativi
+	 	   												 
+	 	   												 
+- Sistemi distribuiti: la topologia di rete in una Wis è fortemente dinamica e riconfigurabile
+					   una Wis è formata da tre componenti fondamentali: - Host
+					   													 - Gateway
+					   													 - canale di comunicazione tra host e gateway
+					   													 
+					   	approccio alla progettazione: - modello del sistema: bisogna decidere se fare un modello basato sui nodi o sui componenti.
+					   														  il primo si focalizza maggiormente sull'aspetto fisico del sistema mentre
+					   														  il secondo si focalizza sull'aspetto astratto dividendo il sistema in funzionalità
+					   														  un altro aspetto da decidere è come bilanciare la computazione, se farla locale o 
+					   														  decentralizzata
+					  					 			  
+					  					 			  - architettura hardware dei nodi: decidere il microprocessore, il chipset di comunicazione e il bus interno
+					  					 			  
+					  					 			  - architettura software: decidere se implementare o meno un SO
+					  					 			  
+					  					 			  - modello di programmazione
+					  					 			  
+					  					 			  - protocolli: come devono comunicare i vari nodi( bluetooth ecc..)
+					  					 			  
+					  					 			  - architettura di rete: piatta o gerarchica e centralizzata o decentralizzata
+		  					 
+progettare un sistema embedded dal nulla, pur avendo chiara l'architettura e l'applicazione finale è difficile anche per progettisti esperti, inoltre l'onere computazionale
+per avere un bon caso di est è molto significativo ed è per questo che ci si avvale di piattaforme di prototipazione per risolvere il problema, e queste sono:
+		
+		- sistemi di emulazione digitali semplici: sono FPGA e permettono di emulare sistemi semplici con porte standard
+		
+		- sistemi di emulazione digitali complessi: sono FPGA che permettono di emulare sistemi e si possono controllare anche alimentazione, porte complesse ecc..
+		
+		- sistemi di emulazione software
+		
+		- sistemi di emulazione software/hardware
+		
+		- sistemi di emulazione application specific
+		
+		- sistemi di emulazione di SoC
+		
+approccio alla progettazione con board di prototipazione: 1 - analis dei requisiti
+															
+														  2 - scelta ella piattaforma: si cerca di trovare la piattaforma più simile a quella reale e posibilmente
+														  							   estendibile
+														  							   
+														  3 - reperimento sdk: occhio ai tempi!
+														  
+														  4 - progettazione
+														  
+														  5 - realizzazione del prototipo
+														  
+														  6 - verifica
+
+
+
+---------------------- Capitolo 3 ----------------------
+
+
+flusso di progettazione: fase che va dalla creazione puramente formale del sistema fino alla fabbricazione(esclusa) e comprende:
+
+			- specifica a livello di sistema
+			
+			- descrizione architettura 
+			
+			- progettazione 
+			
+			- testing
+			
+ci si avvale di 3 strumenti fondamentali: - modelli
+										  - metriche
+										  - strumenti di gestione dei dati 
+										  
+										  
+- modelli: rappresentazione formale del sistema che specifica alcuni aspetti e ne ignora altri a seconda dello step a cui il modello si riferisce. non deve essere ambiguo e deve 
+		   essere semanticamente corretto e chiuso per fornire un adeguato supporto all'elaborazione
+		   
+		   un modello può essere diverso a seconda degli obiettivi a cui punta: - esplorazione architetturale: cerca di individuare una gusta architettura su cui sviluppare
+		   (DIPENDENTI dal dominio applicativo software/hardware)			    - valutazione prestazioni: stime che deve rispettare il modello finito
+		   																		- sintesi: sintesi di tutte le funzioni del sistema che andranno raffinate tramite un strumento automatico
+		   																				   (es: modello c++ viene compilato in assembly)
+		   																		- analisi funzionale: cattura le funzionalità del sistema,spesso deve essere eseguibile per avere senso
+		   																		- validazione e verifica: utilizzati in fase di verifica,
+		   																								  specificano i casi di test e devono essere eseguibili
+		   																		- mapping: mappano le funzionalità del sistema con i vari componenti
+		   																		- placement e routing: descrizione FISICA di come vanno posizionati i vari componenti e come devono 
+		   																							   comunicare
+		   																		
+		   																	
+			un modello ha anche una serie di proprietà indipendenti dal dominio applicativo, ma date dal processo che sta sotto il calcolo modello(semantica), queste possono essere:
+						 
+						 - interpretazione del tempo: - continuo
+						 							  - discreto
+						 							  - event driven(il tempo scatta quando avviene un evento) -> utile nelle simulazioni in cui si è in uno stato stabile per molto tempo
+						 							  															  (abbasso il costo di simulazione)
+						 							  															  nel modello time driven lo stato viene ricalcolato ad ogni scatto 
+						 							  															  di tempo anche se lo stato non cambia 
+						 							  - time driven( il temp scatta ad intervalli prefissati)							  		
+			
+						 - natura: - deterministico
+						 		   - non deterministico
+						 		   - stocastico(non deterministici e con almeno una variabile aleatoria)
+			
+			ci sonno diversi livelli di astrazione e variano a seconda del dominio applicativo:
+					
+					     - software: - sistema: descrizione astratta del sistema attraverso diagrammi UML ecc
+					     			 
+					     			 - algoritmico: si descrivono e implementano le funzionalità tramite linguaggi di programmazione ad alto livello
+					     			 				(troppo astratto in ambito embedded senza creare modelli sottostanti)
+					     			 
+					     			 - dataflow/logico: si scindono le funzionalità del livello algoritmico in funzioni elementari(assembly)
+					     			 
+					     			 - fisico: file binari(coincide con il prodotto finito)
+					     			 
+					     - hardware: - sistema: descrizione astratta del sistema attraverso diagrammi UML ecc
+					     
+					     			 - algoritmico: molto poco utile in hardware(livello di astrazione troppo alto)
+					     			 
+					     			 - dataflow: descrizione specifica di ogni componente hardware, della dimensione dei blocchi di memori ecc... attraverso linguaggi descrittivi(VHDL)
+					     			 
+					     			 - logico: descrizione del sistema in modo non ambiguo tramite la descrizione di blocchi logici elementari
+					     			 
+					     			 - fisico: descrizione dell'hardware dal punto di vista chimico/fisico e geometrico
+					     			 
+
+- metriche: misurazione della qualità del sistema
+			
+			date diverse grandezze misurabili del sistema( ritardo, tempo di esecuzione ecc.) attraverso una funzione matematica, grazie al suo risultato,
+			è possibile stimare la qualità del sistema 	
+			
+			divisione di metriche: - prestazioni: principalmente tempo di esecuzione e ritardo
+												  
+												  - software: numero di cicli di clock, tempo per rientrare da una interrupt ecc..
+												  
+												  - hardware: latenza, frequenza di clock ecc..
+												  
+								   - dimensioni: - software: - dimensioni statiche: dimensioni del codice, ci identifica quanta memoria non volatile devo possedere nel mio sistema
+								   							
+								   						   	 - dimensioni dinamiche: date dalla grandezza dello stack e dell'heap che si formano durante l'esecuzione, identificano
+								   						   						     quanta RAM montare	
+								   				 
+								   				 - hardware: numero di transistor, look up table, die size ecc...(in digitale numero di equivalent gate)
+								   				 
+								   - potenza: potenza dissipata dal sistema, spesso si ricorre a stime medie oppure alla potenza dinamica in fase di switch
+								   
+								   - testabilità: si testa la coperture della rete cioè quanti guasti ho in percentuale durante la fase di testing
+			
+			le metriche devono essere OBBLIGATORIAMENTE eseguibili
+			
+- strumenti: molto utili data la complessità sempre maggiore dei sistemi
+
+			 vengono differenziati in base al: - dominio di applicazione
+			 									
+			 								   - livello di astrazione
+			 								   
+			 								   - funzionalità svolte
+			 
+			compilazione e sintesi: strumenti che partendo da un modello con astrazione maggiore ne producono uno con astrazione minore	
+									
+									es: UML -> java: code generator
+										
+										c++ -> assembly: compilatore	
+										
+			verifica: strumenti che verificano che il modello rispetti veramente le specifiche
+			testing	  la verifica in abito software viene principalmente effettuato facendo girare il software ottenuto sull'architettura che lo deve ospitare,
+					  se non è disponibile l'architettura si usano le instruction set dell'architettura su un altro sistema( spesso insieme all'instruction set è fornito anche il debugger)
+					  si può fare verifica anche con profiler e i tool di code coverage	
+					  
+					  sul piano hardware la verifica si basa tutta sulla simulazione: - simulatori logici digitali: simulano il circuito e il funzionamento delle porte logiche (VHDL)
+					  																  
+					  																  - simulatori elettro analogici: risolvono le equazioni che governano il sistema (SPICE)
+					  
+					  una volta	ultimata la fase di produzione si passa al testing.
+					  in ambito software coincide con la fase d verifica mentre in ambito hardware assume un ruolo molto importante.
+					  lo scoglio più grande è generare sequenze di input utili e significative per il caso di test( si usano le tecniche descritte al capitolo 2)
+					  
+attraverso tutti questi strumenti modelli e metriche è possibile delineare un flusso di sviluppo del sistema:
+
+	1 - descrizione generale: descrizione delle funzionalità ignorando tutti gli aspetti implementativi e i domini di appartenenza e l'architettura su cui si baserà il sistema
+	
+	2 - estrarre dalla descrizione generale varie metriche per delineare un po i componenti del sistema(partizionamento)
+	
+	3 - illustrare il sistema hardware, il software e le interfacce di comunicazione	
+	
+			-3.hardware: illustrare attraverso il VHDL 	i moduli e i datapath
+			
+			-3.software: sviluppo di sorgenti
+			
+			-3.comunicazione: diviso tra hardware(bus ecc..) e software(driver)	
+			
+			
+			
+---------------------- Capitolo 4 ----------------------	
+
+le tecnologie hardware consentono di realizzare circuiti  analogici o digitali e sono oggetto della progettazione hardware
+
+4 principali tipologie: - COTS: componenti specifici che svolgono una specifica funzione, possono essere acquistati ed assemblati direttamente sulla board
+						
+						- Microprocessore: utile quando il problema da implementare è risolvibile via software
+						
+						- Logiche programmabili: molto flessibili dal punto di vista hardware, offrono molte porte logiche bistabili ecc..
+						
+						- ASIC: componenti hardware che svolgono una sola operazione, massimizzano le prestazioni e minimizzano i consumi, molto costosi
+						
+processo planare: principale processo di produzione degli ASIC.
+				  si parte da 2 importanti assunzioni di base:  - si parte da un semiconduttore( quasi sempre il silicio)
+				  												- tutti i componenti che formano un circuito integrato possono essere creati con il semiconduttore scelto
+				  
+				  3 importanti componenti: - materiale conduttore: spesso finissime piste di rame
+				  						   - silicio n: alta conducibità
+				  						   - silicio p: bassa conducibilità
+				  						   - isolante: ossido di silicio
+				  						  
+				  processo: 1 - si parte da un wafer di silicio
+				   			 
+				   			2 - si com
+				  
+				  						   								    						   						   			 		   

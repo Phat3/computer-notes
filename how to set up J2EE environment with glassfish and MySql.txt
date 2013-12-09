@@ -1,0 +1,61 @@
+SET UP J2EE GLASSFISH JAVA ENVIRONMENT
+
+
+========== GLASSFISH SETUP ===========
+
+1 - install plugin from eclipse market place
+
+2 - set the directory to your <glassfish installation path>/glassfish/
+
+3 - go to terminal
+
+4 - export <glassfish installation path>/glassfish/bin to your environment variable PATH
+
+5 - run "sudo asadmin"
+
+6 - create a new domain.  to do this you have to run inside asadmin "create-domain --adminport <port number> <name of the domain>
+
+7 - check if the domain has been created "list-domains"
+
+8 - start the domain with "start-domain <domain's name>"
+
+9 - if you want to stop the domain you have simply to type "stop-domain <domain's name>"
+
+10 - if you want to delete the domain you have to type "delete-domain --domaindir ../domains/<domain's name that you want delete>"
+
+11 - copy your mysql connector into <glassfish installation path>/glassfish/domains/<domain's name>/lib/ext
+
+12 - go to your admin glassfish panel and create a new jdbc connection pool with the name of your db
+
+========== MYSQL SETUP ===========
+
+13 - go to terminal
+
+14 - if you want you can create some alias in your .bashrc file to minimize the lenght of the following commands
+
+	 alias mysqlstart='sudo /usr/local/mysql/support-files/mysql.server start'
+	 alias mysqlstop='sudo /usr/local/mysql/support-files/mysql.server stop'
+	 alias mysqlrestart='sudo /usr/local/mysql/support-files/mysql.server restart'
+	 
+15 - export <mysql installation path>/bin to your environment variable PATH
+
+16 - set your root password for mysql "mysqladmin -u root password <your password>"
+
+17 - enter in mysql with root privileges "mysql -u root -p"
+
+18 - go to eclipse
+
+19 - go to data source explorer (in jave EE prospective)
+
+20 - connect with your database specifying the driver, the version of mysql and the correct password, user and url
+	 (es: password: pass
+	 	  user: root
+	 	  url: jdbc:mysql://localhost:3306/<name of the database>)
+
+21 - try your connection
+
+========== DEPLOY YOUR APPLICATION ===========
+
+22 - go to server tab in java EE prospective and change the publishing option of your server
+
+23 - click on the app and run as a server

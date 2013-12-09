@@ -1,0 +1,19 @@
+USARE PARADIGMA REST CON JAVA EE
+
+1 - creare web application
+
+2 - all'interno del progetto creare un nuovo file del tipo RESTful application e specificare il nome della classe
+
+3 - creare una classe java base che estende application (quella che finisce con .core)
+
+4 - all'interno di questa classe mettere il campo @ApplicationPath("parte dell'url che identifica le risorse")
+
+5 - all'interno della classe creata al punto 2 specificare il campo @Path("identificativo della risorsa")
+
+es: http://esempio.it/risorse/ciao
+
+	root=esempio.it
+	
+	@ApplicationPath("risorse")
+	
+	@Path("ciao")

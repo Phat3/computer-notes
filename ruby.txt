@@ -1,0 +1,111 @@
+USEFUL THINGS IN RUBY PROGRAMMING
+
+- Local variables must begin with "_" or a minus letter
+  costant must begin with a capital letter
+  global variables $
+  instance variables @
+  class variables @@
+
+- how to load class in irb from a .rb file
+	1-run irb
+	2-load './<file_name.rb>'
+
+- setter and getter semplification
+	instead of writing everytimes getter and setter method you can use:
+	-attr_reader :<instance_var1> , :<instance_var2> ecc #this will creates only getter method
+	-attr_writer :<nome_var_istanza1> , :<nome_var_istanza2> ecc #this will creates only setter method
+	-attr_accessor :<nome_var_istanza1> , :<nome_var_istanza2> ecc #this will creates both getter and setter methods
+
+- the research in the strings is very simple
+	str['hello'] returns true if 'hello' is present in str
+
+- in ruby we can use blocks
+	blocks are simple anonymous functions enclosed between '{}' or between 'do..end'.
+	theese blocks are useful when we want to change the behavior of a class method only one time in the program
+			
+	es:[1,2,3].each {|a| puts a} 
+				 
+		 		OR
+				
+	   [1,2,3].each do
+	   |a|
+	   puts a
+	   end
+			   
+	   #the return value of function 'each' goes to the local parameter 'a' and then the block is executed
+
+- the key value of an iterator in ruby is 'yield'	 
+	each time the yield statement appears, the block of statements between do...end is executed
+	
+	es: class Integer
+  			def times_header_and_footer  #ITERATOR DEFINITION
+    			puts "-- BEGIN --"
+    			times do
+      			yield
+    			end
+    		puts "-- END --"
+  			end
+		end
+ 
+ 
+		5.times_header_and_footer do     #ITERATOR INVOCATION
+ 		puts "Hello world"
+		end
+		
+		
+		-- BEGIN—Hello world			 #OUTPUT 
+		Hello world
+		Hello world
+		Hello world
+		Hello world—END --
+
+- we can manage arrays like a stack ( using push and pop method )
+
+- we can use hash like in PHP ( {key => value} )	
+
+- inheritance in ruby
+	single inheritance: class Circle < Form ( we can call a superclass method with 'super(parameter1,parameter2, ecc...) ) 
+	
+	multiple inheritance: we can simulate multiple inheritance through the use of modules (mixin techniques).
+						  we have to include the methods we want to use in our class in a single module and then include it
+						  
+						  es : module Example             #MODULE DEFINITION
+						  			def say_hello
+						  				puts 'Hello'
+						  			end
+						  	   end
+						  	   
+						  	   
+						  	   class beneeeee             #CLASS DEFINITION
+						  	   		include Exmple
+						  	   end
+						  	   
+						  	   
+						  	   ca = beneeeee.new
+						  	   ca.say_hello
+						  	   
+						  	   Hello                       #OUTPUT
+						  	   
+- ruby has full regular expression support ( using Regexp class )
+	to compare a string with a regexp we have to use =~ or !~ for the negation
+	
+	es: exp= Regexp.new('sw+')
+		str = 'tutto bene'
+		str =~ exp
+		
+		5                         #OUTPUT ( the first index that matches the regexp )
+
+- in ruby exceptions are thrown through the instruction 'raise'
+	syntax: raise ExceptionClass 'error message'
+	
+- ruby handles errors through the block 'rescue...ensure'
+	
+	es: file = File.open("test.txt")
+		begin
+    		# operation on the file 
+		rescue
+    		# error handling
+		ensure
+    		# final operations that are executet in each case (error or not)
+		end
+		 						

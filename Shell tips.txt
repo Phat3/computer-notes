@@ -1,0 +1,37 @@
+SHELL TIPS
+
+1 - for in bash: 1 - for i in <lista> do <cose da eseguire> done
+				 
+				 2 - seq <inizio> <step> <fine>   (-w me li ordina non in ordine lessico grafico "0 1 2 3 ecc..	")
+				     							  (-s "stringa" appende una stringa al numero)
+				     							  (mettere tra `lista` (alt+9) intende l'output di lista come iteratore)
+				     							 
+2 - lsof: -c <regexp>      utile per vedere tutti i file aperti da una serie di programmi
+		  -D <directory>   lista tutti i file aperti di quella directory
+		  -a               più opzioni sono lanciati in AND e non in OR come di default
+		  				   (es: default:tutti i file aperti da sebastiano O in /etc
+		  				   
+		  				   		-a:tutti i file aperti da Sebastiano E in /etc)
+		  				   		
+		
+				 
+3 - usare i core dump: quando un programma crasha il sistema salva tutti i suoi dati in memoria volatile sul disco fisso.
+					   di default i core dump sono bloccati a 0M
+					   per attivarli fare -- ulimit -c unlimited --
+					   (è utile avere i dump file per trovare le password di quei programmi che, su disco hanno la password 
+					   criptata mentre in memoria in chiaro)
+					   
+					   
+4 - watch: rilancia il comando ogni 3 secondi facendo un clear ogni volta
+		   (-d: molto utile, evidenzia le differenze tra un output precedente e quello successivo)
+		   
+	
+5 - strace: permette di vedere cosa fa un processo ai morsetti(che librerie carica, dove fa mmap ecc..)
+            (-o <file>: riversa l'output su un file)
+            (-e <gruppo di syscall>:mostra solo le operazioni del gruppo specificato)
+            
+
+6 - reindirizzamenti shell: - 2>&1: fonde insieme 2 file descriptor (in questo caso stderr(2) con stdout(3)
+							- 3<>foo: applica a foo il file descriptor 3 (come una open in c)
+							- read -n <numero di caratteri> [<file | <&filedescriptor] : legge n caratteri dal file passato 
+							- stdbuf -i0 -e0 -o0 : mette a 0 i buffer di stdin out e err(utile per le remote shell)

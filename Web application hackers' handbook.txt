@@ -1,0 +1,209 @@
+WEB APPLICATION HACKER'S HANDBOOK
+
+
+
+
+1 - three fondamental components to HANFLE USER ACCESS:
+	- Authentication
+	- Session
+	- Access Control: specifies the components the users are able to access
+
+2 - some techniques of INPUT HANDLING:
+
+	- Reject known bad(Blacklist): this technique blocks everything that is in the blacklist and allows everything else
+	  							   (it's easy to bypass... es: use "SeLecT" instead of "SELECT" or use non standard characters to distrupt tokenizing performed by web application)
+	  							   (it's also vulnerable to a NULL byte attack)
+	  
+	  
+	- Accept known good(Whitelist)
+	
+	- Sanitization: accetta un dato che potrebbe essere maligno e lo "depura" da caratteri strani
+					(utile contro XSS)
+	
+	- Safe data handling: assicuro che il processo che mi fornisce i dati (es: query SQL) si sempre affidabile per ogni input
+	
+	- Semantic Checks: devo verificare che il dato inserito sia inserito nel giusto contesto anche se la sintassi del dato è corretto
+					   (es: devo assicurare che un determinato numero di account bancario appartenga effettivamente all'utente che lo ha immesso)
+		
+	- Boundary validation: ogni componente dell'applicazione server side deve trattare gli input ricevuti(anche se ricevuti da componenti interni all'applicazione stessa) come
+						   potenziali input malevoli
+
+3 - NULL byte attack: uN NULL byte prima di un espressione provoca la fine dell'esecuzione di un filtro e quindi permette
+					  l'esecuzione di una stringa malevola passata
+					  (es: %oo<script>alert("hacked")</script>)
+					  
+4 - tipi differenti di encoding:
+
+	- URL encoding: può comprendere solo caratteri ascii ne range 20-7e
+	  				il codice e cosi formato: %<"2 cifre per identificare il carattere ascii>
+	  				(es: %25 = %)
+	
+	- Unicode encoding: - 16 bit: come URL encoding ma preceduto dal %u<"cifre che identificano il carattere unicode">
+					    - UTF-8 : ogni carattere è identificato da una serie di byte preceduti dal "%"
+					              (es: %c2%a9)
+	
+	- HTML encoding: usato per introdurre caratteri "problematici" per la sicurezza (es: " ) all'interno di documenti HTML
+					 ogni carattere ha la sua sintassi o puo essere espresso nella sua forma decimale o esadecimale in ascii
+					 (es: &quot; = "
+					 	  &#34 = " 
+					 	  &#x22 =  " )
+
+========================== MAPPING PROCESS =============================
+					 	  
+5 - limitazioni web spider automatici: - non analizzano gli elementi creati dinamicamente
+								       - non analizzano i file compilati client-side
+							           - non provano tante combinazioni nei form ma solo una stringa base (falsi positivi)
+							           - usano solo gli URL per identificare le risorse senza tenere conto che il comportamento di un singolo URL puo cambiare a seconda dei valori del POST
+							
+					 	  
+6 - user-directed spidering: si naviga normalmente con il browser solo che le richieste e le risposte passano attraverso un proxy e uno spider cosi che si possano analizzare i pacchetti
+							 questo approccio ovvia a numerosi problemi del web-spidering automatico: - si possono fare molte prove nei form(inserire diversi tipi di stringa)
+							 																		  - posso evitare le aree che potrebbero creare danno all'applicazione 
+							 																		    (es:sezione che elimina li utenti)
+							 																		  - posso mappare anche le zone che richiedono autenticazione(area personale ecc..)
+							 																		  
+7 - SPIDERING HACK STEPS: 1 - attivare burp (con la dovuta configurazione)
+						  2 - naviga nell'applicazione normalmente coprendo ogni link e ogni form
+						  3 - analizza la mappa del sito creata dallo spider
+						  4 - prova a fare richieste a pagine autorizzate e non per vedere come risponde il server
+						  5 - usa l'intruder di burp per cercare pagine non visibili facendo richieste con pattern di URL molto comuni(va configurato con i payload adeguati)
+						  6 - fai cercare all'intruder anche pagine con nomi uguali ma estensioni diverse ma probabile(.txt, .bak, ecc...)
+						  7 -cercare informazioni utili anche utilizzando google ecc.. o archivi internet (archive.org)
+						  
+8 - MAI ASSUMERE CHE UNA RISPOSTA 404 INDICHI SICURAMENTE CHE LA PAGINA NON ESISTE!!!
+
+9 - settare burp: 1- andare nel proxy tab e scegliere option
+				  2 -inserire come entry per il proxy il local host
+				  3- settare il browser con localhost come proxy
+				  
+10 - prestare molta attenzione a tutte le cose che hanno interazione con l'utente come:
+	 - URL che hanno i marker per una query(possono esserci format non standard per questi marker)
+	 - dati sottomessi tramite POST
+	 - cookies
+	 - altri parametri inviati tramite HTTP come user-agent, refer ecc..
+	 - canali "out-of-bound" --> tutto ciò che non è HTTP
+	 
+11 - usare nikto per fare lo scanning delle vulnerabilità di una web application
+
+12 - usare Httprecon per fare fingerprinting
+
+13 - se non si capisce che tipo di estensione usa web application si può provocare dele richieste per vedere le pagine che comunicano l'errore, infatti
+	 molte servizi noti usano pagine d'errore personalizzate (es:ASP.NET) 
+
+========================== BYPASSING CLIENT-SIDE CONTROLS =============================
+
+14 - metodi per trasmettere dati al server in modo "non-modificabile" dal client:
+	 - hidden form fields
+	 - Http cookies 
+	 - URL parameters
+	 - request header
+	 - opaque data: dati crittografati
+
+15 - molti siti usano ASP:NET viewstate, il quale è un meccanismo che permette di non richiedere più volte le stesse informazioni ma le fa risiedere lato client
+     le informazioni sono encodate in base64,la suite di burp ha gia nel proxy un tab che si chiama viewstate che serve a decodare le informazioni presenti appunto nel viewstate cosi da poterle cambiare
+
+16 - metodi per controllare input dell'utente lato client:
+     - attributi delle form: max lenght ecc... facilmente aggirabili con burp
+     - script-base validation: chiamano degli script di validazione con il tag onsubmit dentro la form
+       si possono aggirare sempre usando un proxy, prima si mette un valore "buono" e poi una volta passato il controllo si cambia il contenuto con il proxy
+       oppure si può intercettare la risposta del server e fare in modo che lo script di validazione restituisca sempre true 
+							 																		  
+17 - ci sono molte cose che possono essere fallaci a livello client side per esempio le estensioni:
+	 ci sono 2 metodi principali per fare targeting a questi componenti:
+	 - intercettare il traffico generato da queste componenti(sconsigliato:spesso i dati sono cifrati (ma si possono decifrare ad esempio con Dser plugin), non si capisce bene la logica che sta dietro l'applicazione)
+	 	a volte il proxy potrebbe non riuscire ad intercettare i pacchetti provenienti da queste seensioni per vari motivi:
+	 	- le estensioni non usano Http per comunicare(molto raro), bisogna usare uno sniffer e non un proxy
+	 	- le estensioni non accettano il vostro certificato SSL, bisogna cambiare le impostazioni del proxy
+	 	- le estensioni non usano le API standard del browser per comunicare, bisogna riconfigurare il proxy
+	 - decompilare il bytecode: 1 - individuare l'URL per scaricare il bytecode
+	 							2 - rinominare l'estensione in zip e scompattarlo(non necessario per i file flash)
+	 							3 - usare un tool per decompilare
+	 							4 - guardare il codice ottenuto e cercare in particolare gestione input utente, campi nascosti, comunicazione con componenti server side
+	 							5 - ricompilare il sorgente
+	 							6 - sostituirlo al sorgente originale in uno di questi modi: - sostituire il file eseguibile in cache con il nostro modificato
+	 																						 - intercettare la risposta del server con dentro il bytecode e sostitutirlo con il nostro patchato, si può fare con burp
+	 																						 - cambiare l'url della pagina da dove prende i sorgenti del bytecode e farlo puntare al nostro sorgente
+	- usare un debugger: invece di decompilare tutto il codice si può usare un debugger a caldo che ci permette di inserire breakpoints ecc per capire meglio il funzionamento dell'applet
+						 debugger per browser più comuni: javaSnoop, jSwat 		
+						 
+18 - è buona norma non trasmettere mai dati sensibili al client, bisogna seguire la regola "tutto ciò che viene dal client non è fidato!!"
+	 per esempio bisognerebbe trasmettere solo il codice del prodotto e non il prezzo, il prezzo deve risiedere in un database server side
+	 se proprio si vuole trasmettere dati sensibili al client bisogna osservare 2 cose molto importanti:
+	 	1 - criptare le informazioni concatenando più campi insieme: non usare solo il prezzo ma concatena prezzo codice ecc e poi cripta tutto come unica stringa
+	 	2 -	mai fare conoscere il valore in chiaro e quello criptato di uno stesso dato, si potrebbe capire che sistema di crittografia si usa server side
+	 
+19 - l'UNICO MODO VERAMENTE SICURO RESTA QUELLO DI VALIDARE I DATI PROVENIENTI DALL'UTENTE SERVER SIDE!!																			 
+	 usare i controlli client side per non generare troppo traffico inutile, ma ricontrollare sempre server side il dato ricevuto
+	 (es: controllo sulla sintassi della mail --> farlo client side
+	 	 una volta passato il controllo controllare comunque la sintassi server side)
+	 	 
+========================== ATTACKING AUTHENTICATION =============================			
+
+20 - un sito con regole deboli sulle password avrà molto probabilmente tantissimi utenti registrati con password deboli
+	
+21 - tipi di attacco per autenticarsi:
+
+        1 - brute force: può essere effettuato tramite l'intruder di burp
+        				 si può fare un controllo client side che tramite un campo del cookie capisce quante volte è stato sbagliato l'inserimento dei deti e bloccare la possibilità di login dopo un certo numero
+        				 di errori(facilmente bypassabile)
+        			     per velocizzare questa pratica ci sono svariati modi: - fare attenzioni alle indicazioni dei messaggi d'errore, possono fornire informazioni utili 
+        			     														 (es: password incorrect mi inidca che lo username è giusto... non devo più fare bruteforce sullo username)
+        			     													   - cercare di fare bruteforcing della password su uno username già esistente, gli username si possono ricavare per esempio nelle form
+        			     													     di registrazione quando appare il messaggio "username già in uso"
+        			     													   - confrontare le differenti risposte Http del server dopo aver inserito diversi username(usare il comparer di burp)
+        
+        2 - attaccare il form di modifica/recupero della password: spesso i controlli imposti sul form del login sono assenti in questo form
+        
+        3 - osservare la funzione "remember me": studiare come fa a riconoscerci(cookie, cookie identificativi ecc..)
+        
+        4 - osservare se un utente può avere un'escalation di privilegi (può esserci una password "backdoor")
+        
+22 - Possono esserci difetti nel codice dell'implementazione del login:
+		
+		1 - fail-open: se si verifica un eccezione il sistema nel ramo catch autentica chi ha provocato l'eccezione anche se  non ha inserito le credenziali giuste
+		               (molto raro)
+		               
+		2 - login multifase: molte applicazioni utilizzano varie fasi di login e non solo l'inserimento di username e password. questo aumento di complessità può far si che ci sia anche un aumento di problemi di sicurezza
+		
+							 cose da guardare: - guardare se si può passare da uno stage 2 a uno 4 saltando il 3
+							  				   - controllare le informazioni immmesse ad ogni passaggio di stage (soprattutto campi nascosti), da queste informazioni si possonono ricavare dati dell'utente 
+							  				   - controllare se ci sono domande generate casualmente e non fisse. questo molte volte può portare a problemi di sicurezza, per esempio 
+							   				     un attaccante può continuare a refreshare la pagina fino a trovare una domanda di cui conosce la risposta oppure molte volte sia la domanda che la risposta sono contenute in una form nascosta
+							    				 quindi basta analizzare il codice e cambiare la domanda con una nota
+		
+		3 - Salvataggio delle credenziali non sicure: se le informazioni sono salvate in MD5 o in SHA1 guardare se la stringa trovata appartiene ad una parola nota utilizzando i dizionari di hash
+		
+23 - Come progettare un login sicuro: - permettere all'utente di inserire pasword lunghe e con caratteri alfanumerici maiuscoli e minuscoli
+									  - gli username devono essere unici
+									  - se gli username sono autogenerati assicurarsi che abbiano un' entropia elevata
+									  - salvare le password nel database con un opportuna funzione di hash e con un opportuno salt per prevenire l'uso di dizionari di hash
+									  - usare l'HTTPS per fare il login ( caricarlo subito in HTTPS e non farlo passare da HTTP a HTTPS dopo aver trasmesso i dati!!)
+									  - trasmettere i dati solo tramite POST
+									  - nelle funzionalità di "remember me" ricordare solo i dati non sensibili (username e NON password)
+									  - implementare il cambio della password(usare tutti gli accorgimenti del caso come se fosse una form di login!!)
+									  - gestire bene le eccezioni!
+									  - se si ha un login multifase assicurarsi che le informazioni passata dai vari stage risiedano in oggetti server side e non client side
+									  - se si usano domande generate a caso assicurarsi che non siano in una form nascosta ma che risiedano in variabili server-side
+									  - se è presente una funzione di user impersonification, assicurarsi che non sia possibile usarla se non autorizzati
+									  - qualsiasi tentativo fallito di login deve ritornare lo STESSO GENERICO messaggio d'errore e non uno specifico in base all'errore
+									  
+========================== ATTACKING SESSION MANAGEMENT =============================
+
+24 - 2 principali motivi di debolezza sull'uso delle sessioni: 1 - meccanismo di CREAZIONE del token di sessione debole
+															   2 - meccanismo di GESTIONE del token di sessione debole
+															   
+25 - 2 principali altternative alle sessioni: 1 - HTTP authentication: meccanismo proprio di HTTP in cui tutti i dati necessari perl'autenticazione sono trasmessi nell'header della richiesta ad OGNI richiesta
+												                       (questo meccanismo è molto poco usato perchè non sicuro)
+												                       
+											  2 - Session stateless mechanism: non uso le sessioni ma usa cookie temporali, trasmessi ad ogni richiesta in cui vengono messe le informazioni. queste informazioni 
+											  								   sono create mettendo insieme più contesti(concatenamento di più informazioni) e applicando un algoritmo di criptazione alla stringa ottenuta
+											  								   
+26 - problemi legati alla creazione del token di sessione:
+      
+      1 - meaningful token: spesso i token sono generati attraverso l'encoding di vari campi significativi come username, timestamp, nome e cognome utente ecc...
+                            e questi campi vengono poi encodati con l'uso di Base 64,XOR ecc..
+                            per capire come viene generato il token: - provare a registrarsi con tanti username simili( es: A, AA, BA, AAA ecc...) ed analizzare i token generati
+                            										 - provare a fare minime variazioni sul token( cambiando 1 bit alla volta) e provare a submittare il nuovo token per vedere se viene accettato lo stesso
+                            										   spesso campi del token sono ininfluenti al fine dell'accettazione di quest'ultimo ma sono messi solo per complicare il lavoro dell'attaccante
+                            										   (usare burp "char frobber" nell'intruder per semplificare questo lavoro)
+							    

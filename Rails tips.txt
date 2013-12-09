@@ -1,0 +1,32 @@
+RUBY ON RAILS TIPS
+
+1 - use heroku to simulate a deploy of your application
+    (heroku is fully integrated with git, you can push the changes directly on heroku running 
+    -- git push heroku <branch name> --)
+
+2 - to CREATE a database run -- rake db:migrate --
+
+3 - to POPULATE a database with existing data run -- rake db:seed --
+
+4 - you can revert to a previous state of your database using -- rake db:rollback [steps=n] --
+
+5 - if you have to use a previous version of a script (ex: rake) in your application run,
+    inside the directory of your application, -- bundle exec <name of the script you want to use> --
+    (ex: bundle exec rake db:seed)
+
+6 - to install the dipendencies specified in Gemfile run -- bundle install --
+
+7 - An instance variable is automatically avaiable in the view!!!
+
+8 - the route change if a HTTP request on the same page change(GET,POST ecc..)
+
+9 - you can create "data model" for your application using scaffhold
+	-- rails generate scaffold <model name> <attribute1 name>:<attribute1 type> <attribute2 name>:<attribute2 type> ecc...--
+	the scaffold technique also creates an edit button, a new button and a list of default routes
+	(ex: rails generate scaffold User name:string surname:string)
+	
+10 - you can destroy a wrong scaffold running --rails destroy scaffold <model name>
+
+11 - to use the database foreign key you have to use the syntax "belongs_to/has_many" in the data model
+	 (ex: user has_many :microposts
+	 	  micropost belongs_to :user)
