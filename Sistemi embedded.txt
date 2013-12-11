@@ -380,7 +380,7 @@ attraverso tutti questi strumenti modelli e metriche è possibile delineare un f
 			
 			
 			
----------------------- Capitolo 4 ----------------------	
+---------------------- Capitolo 5 ----------------------	
 
 le tecnologie hardware consentono di realizzare circuiti  analogici o digitali e sono oggetto della progettazione hardware
 
@@ -471,8 +471,29 @@ ne esistono 3 tipi di PLD: - one-time programmable: programmabile solo una volta
 						   - riconfigurabile: posso riprogrammabile anche senza dover spegnere il circuito
 						   
 
-						 		
-						 
+le PLD hanno molto spesso una struttura regolare a matrice,e la loro unità fondamentale è la lookup table(componente in grado si eseguire una qualsiasi funzione logica a 4 ingressi)
+le celle possono essere posizionate secondo 2 schemi: - distribuite: interconnessioni e calle sono equamente distribuite su tutta la board
+																	 (formano le FPGA)
+																	 
+													  - accentrate: si acccentrano molte celle in un area ristretta e si lascia lo spazio per le interconessioni nella restante area
+													  				(formano le CPLD)						 		
+													  				
+le interconnessioni possono essere di 4 tipi: -connessioni globali: attraversano tutto il chip e si collegano a molti blocchi logici, introducono molti ritardi
+											
+											  - connessioni locali: collegano solo blocchi logici vicini, perdo in restazioni quando devo collegare blocchi logici lontani
+											  
+											  - connessioni gerarchiche: un misto tra le prime 2
+											  
+											  - programmable switch matrix: n pin di ingresso e n pin di uscita che possono essere collegati tra di loro in maniera indipendente
+											  
+i primi dispositivi programmabili furono le PLA e le PLA, erano board con distribuzione accentrata e permettevano di realizzare solo circuiti combinatori.
+si è indrodotto prima dei buffer di uscita flip flop e multiplexer e questo ha trasformato le PLA/PAL in GAL
+
+CPLD: array di GAL connessi tra di loro da un bus
+
+
+
+
 				   	 
 				   			
 				   			
