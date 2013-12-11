@@ -480,43 +480,109 @@ le celle possono essere posizionate secondo 2 schemi: - distribuite: interconnes
 													  				
 le interconnessioni possono essere di 4 tipi: -connessioni globali: attraversano tutto il chip e si collegano a molti blocchi logici, introducono molti ritardi
 											
-											  - connessioni locali: collegano solo blocchi logici vicini, perdo in restazioni quando devo collegare blocchi logici lontani
+											  - connessioni locali: collegano solo blocchi logici vicini, perdo in prestazioni quando devo collegare blocchi logici lontani
 											  
 											  - connessioni gerarchiche: un misto tra le prime 2
 											  
 											  - programmable switch matrix: n pin di ingresso e n pin di uscita che possono essere collegati tra di loro in maniera indipendente
 											  
 i primi dispositivi programmabili furono le PLA e le PLA, erano board con distribuzione accentrata e permettevano di realizzare solo circuiti combinatori.
-si è indrodotto prima dei buffer di uscita flip flop e multiplexer e questo ha trasformato le PLA/PAL in GAL
+si è introdotto prima dei buffer di uscita flip flop e multiplexer e questo ha trasformato le PLA/PAL in GAL
 
 CPLD: array di GAL connessi tra di loro da un bus
 
 
 
----------------------- SOFTWARE DI BASE ----------------------
+---------------------- MICROPROCESSORI ----------------------
 				   	 
-				   			
-aspetti da tenere in considerazione nello sviluppo di codice in abito embedded:
+Le soluzioni software sono molto più generiche rispetto alle soluzioni hardware ma le soluzioni hardware sono più difficili da implementare.
 
-		- prestazioni: ho risorse limitate e quindi devo ottimizzare moolto il codice per avere alte prestazioni
+il progettista deve scegliere il tipo di processore distinti in: - GPP : processori general purpose, non molto ottimizzati ma flessibili a varie implementazioni
+
+																 - ASP : processori che svolgono un unica funzione			   			
+
+inoltre deve scegliere in che forma acquistarlo, se in forma COTS(forma fisica) oppure IP(descrizione intellettuale)
+
+ci sono altri vari fattori da considerare inoltre: - prestazioni: misure basate sui istruzioni per ciclo di clock, MIPS(million operation per second) MFLOPS, bisogna pero contestualizzarle.
+																 ci si avvale anche di altre misure non funzionali come la potenza dissipata
+																 
+												  - memoria: 2 parametri fondamentali: capienza e banda passante
+												  
+												  - ambiente di sviluppo: valutare come avviene la compilazione e i software di analisi
+												  
+												  - packaging: come è strutturato il packaging se incluso
+												  
+												  - software: quante librerie ha a disposizione quell'architettura e se eventualmente è presente un S.O
+												  
+												  - periferiche: valutare se serve avere un microprcessore(pura unita di calcolo( che lascia libertà al progettista di scegliersi le sue periferiche,
+												  				 oppure un microcontrollore( chip + periferiche già assemblate)
+												  				 
+-GPP: utili nelle applicazioni che hanno bisogno dell'interazione con l'uomo per funzionare.
 		
-		- energia: il software deve sprecare meno risorse possibili
+	  2 fondamentali categorie: - CISC: i primi esemplari di processori sono nati con questa filosofia.
+	 								    si è pensato di usare funzioni macchina complesse per ovviare allo scarso quantitativo di memoria.
+	 								    queste funzioni macchina complesse inglobano al loro interno le 3 istruzioni fondamentali: load, store, execute
+	 								    inoltre si sono arricchite di vari metodi di indirizzamento (assoluto, indiretto, relativo ecc..)
+	 								    ci sono istruzioni in grado di operare su più registri contemporaneamente.
+	 								    queste istruzioni complesse hanno un elevato costo computazionale, inoltre la lunghezza delle stesse non è fissata ma varia da caso a caso.
+	 								    è anche possibile altrare l'ordine delle istruzioni senza cambiare la semantica dell'applicazione(non è detto che le istruzioni siano eseguite nell'ordine ottimale
+	 								    a garantirne la massima efficienza).
+	 								    per gestire tutto ciò il processore deve avvalersi di complicatissime pipeline a molti stati proprie delle architetture superscalari,
+	 								    oppure l'impiego di logiche dedicate proprio dell'approccio out-of-order.
+	 								    si può ovviare a questo problema scomponendo le istruzioni complesse in istruzioni elementari ma questo porta di fatto a trasformare un architettura CISC in una RISC quasi.
+	 								    	 								    
+	 								    inoltre le architetture CISC soffrono di un elevata dissipazione di potenza.
+	 							
+	 							- RISC: dispongono di un ridotto numero di istruzioni, ridotti tipi di indirizzamento e ridotte operazioni matematiche.
+	 									queste istruzioni possono essere condizionali(esegui solo se è avvenuta una condizione prima).
+	 									
+	 									l'architettura RISC è nata perchè: - i costi delle memorie si sono drasticamente abbassati con l'uscita delle DRAM
+	 																	   
+	 																	   - hanno tutte tempo di esecuzione quasi fisso e dimensione fissata e questo fa si che il processo di pipelining frutti i suoi massimi benefci
+	 																	   
+	 									sono dotate di un gran numero di registri divisi solitamente per scopo, questo grande numero riduce il memory spill(salvare il dato di un registro in memoria percheè ho finito i registri a disposizione)
+	 									
+	 									tutte le operazioni si compongono delle 3 operazioni fondamentali load, store , execute.
+	 									
+	 									quasi non necessitano di gestione hardware dei conflitti della pipeline grazie all'estrema semplicità delle istruzioni( si possono usare architetture EPIC o VLIW, che spostano questo compito al compilatore)
+	 									
+	 									la loro dissipazione di potenza è molto più bassa rispetto alle CISC
+	 									
+- ASP: molto utilizzati in ambito embedded
 		
-		- verificabilità: il software può essere testato solo sull'hardware dove deve girare
-		
-		- manutenzione: spesso impossibile da eseguire dopo il deploy
-		
-ruolo sistema operativo: livello software tra hardware e utente, permette lo sviluppo di applicazioni indipendentemente dall'hardware che sta sotto
-						 
-						 funzioni principali: - allocazione memoria: garantisce certi spazi di memoria ai vari processi, da l'impressione ai processi di disporre di un quantitativo di memoria maggiore
-						 											 di quello realmente a disposizione(memoria virtuale)
-						 					  
-						 					  - scheduling dei processi: commutazione di contesto tra i vari processi
-						 					  
-						 					  - protezione e sicurezza: garantire l'accesso diretto all'hardware e alle strutture dati del S.O solo ai processi lato kernel			   			
-				  
-				  		si è passati da kernel monolitico a microkernel(solo le funzioni di scheduling e allocazione sono delegate al kernel, le altre funzioni sono delegate a processi c
-				  													    che girano lato utente spesso)
-				  													    
-				  		un altro grosso passo in avanti è stata l'introduzione dei thread( vantaggio rispetto ai processi: la condivisione dei dati è nativa e non delegata al S.O) 
+	   i più famosi sono i DSP: ASP che si occupano di elaborazione numerica 
+	   							
+	   							istruzione fondamentale: z[t+1] = z[t] + x*y
+	   							
+	   							devo ottimizzare al massimo le istruzioni di somma e prodotto
+	   							
+	   							sono composti da cicli(altrimenti non avrei il concetto di iterazione precedente e successiva), questi cicli sono molto semplici e di solito la variabile
+	   							di controllo del ciclo non viene alterata dentro lo stesso e l'accesso ai dati utilizzati è regolare.
+	   							
+	   							questi ASP non si avvalgono di ALU ma di un sommatore hardware che prende i dati da un registro circolare(visto che l'accesso ai dati è regolare)
+	   							
+	   							l'accesso ai dati deve essere estremamente efficiente: i vari componenti all'interno dei core sono collegati da bus molto efficienti e con una grande banda
+	   							mentre per la memoria si è optato per l'utilizzo di una cache gerarchica:
+	   							
+	   									- standford: cache L0 con molta banda, cache L1 con media banda e memoria centrale, unificate tra istruzioni e dati
+	   									
+	   									- harvard: cache L0 divisa tra istruzioni e dati, L1 e memoria centrale unificate
+	   									
+	   									- SHARC: L0 divisa tra istruzioni, dati e costanti visto che generalmente il fattore x o y sono costanti nella formula generale	   							
+	   									
+	 
+	 network processor: dedicati alle infrastrutture di rete, devono svolgere routine semplici, come ricerca di un indirizzo IP in una lookup table, su un enorme quantità di dati.
+	 					si basano su architetture RISC e hanno bisogno di una forte parallelizzazione tra i vari componenti.
+	 					ogni componente ha affiancato un blocco di RAM che permette di specificare il codice della routine da eseguire.
+	 					i componenti sono collegati tra loro a bus ad altissima banda e sono interfacciate ad una memoria molto veloce SRAM.
+	 					
+	 					il core viene programmato normalmente in C mentre le varie routine sono programmate in assembly oppure mendiante l'aiuto di programi di analisi della sintassi tipo lex.
+	 					
+	 					
+	 microcontrollore: chip con all'interno già delle periferiche installate, fortemente integrate.
+	 				   molto adatti a problemi che richiedono una computazione modesta, che si risolvono con algoritmi semplici ma che hanno stringenti vincoli hardware							
+	 									
+	 								   
+	 								   
+	 								   
 				  						   								    						   						   			 		   
