@@ -1,6 +1,6 @@
 SISTEMI EMBEDDED
 
----------------------- Capitolo 1 ----------------------
+---------------------- PANORAMICA ----------------------
 
 sistemi embedded: struttura di supporo al funzionamento di un applicazione con molta interazione con l'ambiente esterno in cui
 				  i comandi non sono necessariamente immessi dall'utente umano, ma spesso da sensori e possono derivare da
@@ -58,7 +58,7 @@ bisogna integrare bene eterogeneità e costruttività:
 	
 	
 
----------------------- Capitolo 2 ----------------------	 
+---------------------- ARCHITETTURA E PROGETTAZIONE ----------------------	 
 	
 l'attività di progettazione è divisa in 4 fasi: - definizione dell'architetture
 												- partizionamento in hardware software e comunicazione
@@ -244,7 +244,7 @@ approccio alla progettazione con board di prototipazione: 1 - analis dei requisi
 
 
 
----------------------- Capitolo 3 ----------------------
+---------------------- FLUSSO DI PROGETTAZIONE ----------------------
 
 
 flusso di progettazione: fase che va dalla creazione puramente formale del sistema fino alla fabbricazione(esclusa) e comprende:
@@ -380,7 +380,7 @@ attraverso tutti questi strumenti modelli e metriche è possibile delineare un f
 			
 			
 			
----------------------- Capitolo 5 ----------------------	
+---------------------- TECNOLOGIE HARDWARE ----------------------	
 
 le tecnologie hardware consentono di realizzare circuiti  analogici o digitali e sono oggetto della progettazione hardware
 
@@ -493,9 +493,30 @@ CPLD: array di GAL connessi tra di loro da un bus
 
 
 
-
+---------------------- SOFTWARE DI BASE ----------------------
 				   	 
 				   			
-				   			
+aspetti da tenere in considerazione nello sviluppo di codice in abito embedded:
+
+		- prestazioni: ho risorse limitate e quindi devo ottimizzare moolto il codice per avere alte prestazioni
+		
+		- energia: il software deve sprecare meno risorse possibili
+		
+		- verificabilità: il software può essere testato solo sull'hardware dove deve girare
+		
+		- manutenzione: spesso impossibile da eseguire dopo il deploy
+		
+ruolo sistema operativo: livello software tra hardware e utente, permette lo sviluppo di applicazioni indipendentemente dall'hardware che sta sotto
+						 
+						 funzioni principali: - allocazione memoria: garantisce certi spazi di memoria ai vari processi, da l'impressione ai processi di disporre di un quantitativo di memoria maggiore
+						 											 di quello realmente a disposizione(memoria virtuale)
+						 					  
+						 					  - scheduling dei processi: commutazione di contesto tra i vari processi
+						 					  
+						 					  - protezione e sicurezza: garantire l'accesso diretto all'hardware e alle strutture dati del S.O solo ai processi lato kernel			   			
 				  
+				  		si è passati da kernel monolitico a microkernel(solo le funzioni di scheduling e allocazione sono delegate al kernel, le altre funzioni sono delegate a processi c
+				  													    che girano lato utente spesso)
+				  													    
+				  		un altro grosso passo in avanti è stata l'introduzione dei thread( vantaggio rispetto ai processi: la condivisione dei dati è nativa e non delegata al S.O) 
 				  						   								    						   						   			 		   
