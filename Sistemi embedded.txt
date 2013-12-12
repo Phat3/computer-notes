@@ -645,7 +645,7 @@ ci sono altri vari fattori da considerare inoltre: - prestazioni: misure basate 
 						  								  
 						  			- complessità: gli apparati hardware sono meno complessi di quelli di riconoscimento di segnali seriali	
 						  			
-						  3 tipi di bus: bus dati, bus di controllo e bus di indirizamento
+						  3 tipi di bus: bus dati, bus di controllo e bus di indirizzamento
 						  
 						  - meccanismi di sincronizzazione: - strobe: il master comunica con una REQ, sul bus di controllo, allo slave che vuole i dati. lo slave manda i dati sulla linea di dati, e il master li processa
 						  
@@ -661,6 +661,81 @@ ci sono altri vari fattori da considerare inoltre: - prestazioni: misure basate 
 														  
 						 - modulazione analogica: posso modulare in ampiezza, frequenza e fase
 						 
-						 - modulazione analogica: la portante è analogica mentre il segnale è digitale		   
+						 - modulazione analogica: la portante è analogica mentre il segnale è digitale		
+						 
+   
 	 								   
-				  						   								    						   						   			 		   
+---------------------- INTERFACCIAMENTO-----------------------		
+
+interfacciamento: comunicazioni tra componenti facenti parte dello stesso sistema.
+
+problema: si ha nell'accesso alle periferiche in quanto il microprocessore non può sapere a priori quando ci saranno dei dati disponibili da leggere.
+		  per ovviare a questo problema si usano 3 vie: polling, interrupt e DMA
+		  
+un altro problema è l'indirizzamento: come fa il microprocessore ad individuare su che componente mandare i dati?
+
+	3 tecniche per ovviare al problema: - memory mapping: ad ogni componente, sia esso memoria o periferica assegno indirizzi contigui di memoria, così il processore basta che sappia su quali indirizzi scrivere per comunicare con un certo componente
+										 
+										  la periferica per capire che in dato pacchetto transitante sul bus appartiene a lui può procedere in 2 modi:
+										  		
+										  		- sempre attiva una routine di riconoscimento dei pacchetti
+										  		
+										  		- dispositivo esterno che contiene tutta la logica di riconoscimento dei pacchetti e tramite un segnale di chip select identifica il componente interessato
+										  		
+										- standard I/O: i bus hanno una linea in più sul bus di controllo dove identifico con un segnale se voglio scrivere su un componente I/O
+										
+										- port maped I/O: i dispositivi di I/O sono collegati direttamente al microprocessore attraverso dei canali dedicati. il processore legge e scrive su questi dispositivi come se fossero normali registri
+									
+	- polling: metodo che controlla periodicamente un registro di stato di una periferica per sapere se ci sono dati da leggere
+			   va a discapito delle performance questo metodo e in particolare quando si devono controllare periferiche con un diverso rate
+			   
+	- interrupt: metodo asincrono, sono le periferiche stesse che comunicano al processore che ci sono dati da leggere. 
+				 per fare ciò le periferiche devono essere collegate direttamente al processorre tramite una linea IRQ e il processore eve avere una linea IRQ per comunicare
+				 alla periferica che sta eseguendo la interrupt richiesta
+				 
+				 gestione interrupt: 1 - ricevere richiesta
+				 							
+				 						 - singola linea: su INTA ho valore logico a 1 in assenza di richieste. appena me ne arriva una lo setto a 0 impedendo a tutti gli altri di eseguire richieste
+				 						 
+				 						 - linee multiple: ogni periferica è connessa al processore tramite una propria linea IRQ e INTA. limita di molto l'estendibilità dell'architettura
+				 						 
+				 						 - priority arbiter: componente esterno al processore che si occupa di gestire la priorità delle richieste di interrupt.
+				 						 					 è composto da N linee IRQ/INTa, una per ogni periferica, e da una linea IRQ e INTA che lo collega al processore.
+				 						 					 quando riceve più richieste determina quale ha la priorità massima seconda la politica decisa e lo comunica al processore.
+				 						 					 questo esegue la routine e notifica l'avvenuta esecuzione all'arbiter che si occuperà di notificare la periferica corretta
+				 						 				 						
+				 					 2 - decidere se eseguire o meno l'interrupt
+				 					 
+				 					 3 - salvare il contesto dei processi
+				 					 
+				 					 4 - reperire la routine di gestione dell'interrupt richiesta
+				 					 
+				 					 		- fixed interrupt: ad ogni periferica è associata una sola routine di interrupt il cui indirizzo è cablato direttamente nel microprcessore
+				 					 		
+				 					 		- vectored interrupt: l'indirizzo della routine viene messo sul bus dalla periferica e viene prelevata la routine, in un apposito vettore cablato dentro il microprocessore, con indirizzo uguale a quello passato sul bus
+				 					 		
+				 					 		- interrupt address table: il vettore delle interrupt risiede in memoria e non nel processore
+				 					 		
+				 					 		
+				 					 
+				 					 5 -esecuzione della routine
+				 					 
+				 					 6 - ripristino e ripresa esecuzione del programma
+				 					 
+				 					 le interrupt si possono 'mascherare' cioè non farle eseguire, posso fare ciò via software con istruzioni assembler.
+				 					 via hardware uso una maschera di bit che può essere interpretata in 2 modi: es: 001101 - maschero le interrupt con priorita <= 13
+				 					 																					   - maschero le interrupt proveinenti dalle linee 0, 2 e 3
+				 					 																					   
+				 					 NMI: interrupt che non possono essere mascherate
+				 					 
+	- DMA: serve per sgravare il processore da trasferimenti ingenti di dati da periferica a memoria.
+			
+		   quando il DMA riceve da una periferica un segnale che indica che ho dati da trasferire in memoria, il DMA richiede al processore il controllo del bus e lo tiene fino a che
+		   non ha trasferito tutti i dati necessari. in questo tempo l processore è scarico e può eseguire altri compiti.
+		   il DMA per operare deve conoscere l'indirizzo della periferica su cui leggere e l'indirizzzo di memoria su cui scrivere. spesso queste informazioni sono cablate all'interno del controller
+			
+	 																					   
+				 					 
+				  
+			   
+															   								    						   						   			 		   
