@@ -580,9 +580,87 @@ ci sono altri vari fattori da considerare inoltre: - prestazioni: misure basate 
 	 					
 	 					
 	 microcontrollore: chip con all'interno già delle periferiche installate, fortemente integrate.
-	 				   molto adatti a problemi che richiedono una computazione modesta, che si risolvono con algoritmi semplici ma che hanno stringenti vincoli hardware							
-	 									
+	 				   molto adatti a problemi che richiedono una computazione modesta, che si risolvono con algoritmi semplici ma che hanno stringenti vincoli hardware		
+	 				   
+	 				   
+	 				   					
+---------------------- COMUNICAZIONE-----------------------	 									
 	 								   
-	 								   
+- trasmissione seriale: tipo di trasmissione più semplice in assoluto
+						i vari tipi di comunicazione seriale differiscono per: - tipo di segnale: può essere: - assoluto: unica linea di comunicazione, ricevente e mandante devono avere una massa comune(livello di riferimento comune)
+																			                                  
+																			                                  - differenziale: 2 linee di comunicazione 
+																			   
+																			   - schema di temporizzazione: può essere: - sincrono: i 2 sistemi devono essere costantemente sincronizzati
+																			   														ci sono 2 modi di fare ciò: posso avere 2 linee distinte in cui su una mando i dati e su un altra il clock
+																			   														oppure cerco di codificare il clock sulla stessa linea dei dati
+																			   														
+																			   														codifiche: - NRZ(non return to zero): i livelli logici 0 1 sono codificati da segnali basso o alto rispettivamente
+																			   																	
+																			   																   - manchester: i livelli logici 0 1 sono codificati da transizione da segnale alto a segnale basso
+																			   																   
+																			   																   - BMC: il livello logico 1 è codificato da 01 o 10 mentre 0 da 00 o 11, ho frequenza doppia rispetto 
+																			   																   		  a NRZ 
+																			   																	
+																			   																   - codifica a blocchi: codifico un blocco di n bit in m bit con m>n
+																			   																   
+																			   											- asincrono: i dati contengono dei segnali che indicano la sequenza al loro interno 
+																			   														
+																			   														 4 elementi fondamentali: - start bit: indica l'inizio della sequenza da trasmettere
+																			   														 							
+																			   														 						  - payload: sequenza da trasmettere
+																			   														 						  
+																			   														 						  - parity bit: bit per il controllo degli errori
+																			   														 						  
+																			   														 						  - stop bit: bit che indica la fine della trasmissione
+																			   														 						  
+						- bus standard: - I2C: utile per far comunicare elementi vicini tra di loro( ha una bassa capacità) 
+					   						   si compone di 2 linee: SDL( serial data line ) e SCL ( serial data clock ) 
+					   						   al bus sono attaccati vari dispositivi divisi tra master e slave
+					   						   solo i master possono trasmettere dati sul bus, mentre gli slave possono trasmettere solo gli ack sul bus.
+					   						   l'inizio della trasmissione avviene tramite una start condition (passaggio di SDA da 0 a 1 e SCL fisso a 1) e terminata tramite stop condition( SDA da 1 a 0 e SCL a 1)
+					   						   se ho più di un master attaccato al bus ho bisogno di un arbiter che mi regoli le politiche di accesso al bus
+					   
+										
+										- SPI: sistema a bus sincrono composto da 4 linee: - una per il clock (SCLK)
+																						   - una per l'output
+																						   - una per l'imput
+																						   - e una per scegliere lo slave dove trasmettere i dati
+																						   
+											   in questo bus posso avere un solo master
+											   ho un elevato throughput rispetto ai bus I2C
+											   
+										- CAN: tipo di bus differenziale.
+											   non ho bisogno di un arbiter perchè ho il concetto di bit dominante e bit recessivo
+											   se ho 2 frame uno con bit dominante e uno con bit recessivo, trasmetto quello con bit dominante e metto in attesa l'altro
+											   
+											   
+- trasmissione parallela: si avvalgono di più linee di dati per la trasmissione di questi
+						  
+						  vantaggi: - velocità: nel caso ideale la velocità di trasmissione aumenta di un fattore pari al numero di linee parallele
+						  						 
+						  						problemi: - skev: la velocità massima delle linee è pari alla velocità della linea più lenta per poter garantire la sincronizzazione
+						  						
+						  								  - crosstalk: interferenze
+						  								  
+						  			- complessità: gli apparati hardware sono meno complessi di quelli di riconoscimento di segnali seriali	
+						  			
+						  3 tipi di bus: bus dati, bus di controllo e bus di indirizamento
+						  
+						  - meccanismi di sincronizzazione: - strobe: il master comunica con una REQ, sul bus di controllo, allo slave che vuole i dati. lo slave manda i dati sulla linea di dati, e il master li processa
+						  
+						  									- handshake: come lo strobe solo che lo slave manda gli ack sul bus di controllo
+						  									
+						  									- strobe/handshake: misto tra i 2, mi avvalgo di un segnale di WAIT invece che di ack
+						  									
+- trasmissione wireless: si basa tutto sulla modulazione: devo centrare il segnale sulla portante
+															
+														  - segnale: spettro vero e proprio da trasmettere
+														  
+														  - portante: sinusoide che identifica il mezzo con cui trasmettere il segnale
+														  
+						 - modulazione analogica: posso modulare in ampiezza, frequenza e fase
+						 
+						 - modulazione analogica: la portante è analogica mentre il segnale è digitale		   
 	 								   
 				  						   								    						   						   			 		   
