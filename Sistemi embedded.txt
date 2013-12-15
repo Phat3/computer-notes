@@ -734,8 +734,184 @@ un altro problema è l'indirizzamento: come fa il microprocessore ad individuare
 		   non ha trasferito tutti i dati necessari. in questo tempo l processore è scarico e può eseguire altri compiti.
 		   il DMA per operare deve conoscere l'indirizzo della periferica su cui leggere e l'indirizzzo di memoria su cui scrivere. spesso queste informazioni sono cablate all'interno del controller
 			
+			
+---------------------- NETWORK ON CHIP -----------------------
 	 																					   
-				 					 
+si cerca sempre più di integrare più core in un singolo package per aumentare le prestazioni.
+
+prima, per aumentare le prestazioni si aumentava solo la frequenza ma questa faceva aumentare di conseguenza la potenza dissipata (P = V^2 * C * f).
+
+un aumento eccessivi può portare a 2 conseguenze: - termiche : innalzamento eccessivo della temperatura all'interno del package con conseguente rottura	
+												  - potenza: aumentare troppo la potenza richiederebbe ingombranti sistemi di dissipazione
+												  
+per diminuire la potenza si può abbassare la tensione di soglia ma si è quasi arrivati ad un limite fisico ( dopodichè i transistor non commuterebero più).
+
+abbassare la C è un compito esclusivo dei progettisti dei chip perchè è un paramentro costruttivo
+
+problemi legati al technology scaling: - interconnessioni: al diminuire delle dimensioni dei componenti le interconnessioni hanno sempre lo stesso delay
+									   - affidabilità: aumenta la complessità del chip utilizzando transistor sempre più piccoli
+															   	 					 
 				  
-			   
-															   								    						   						   			 		   
+problemi che minano l'affidabilità: - difetti di design hardware/software: con l'aumentare della complessità dei chip aumenta anche il numero di bug.
+																		   si può controllare la presenza di bug in 2 modi:
+																		   		
+																		   		- simulazione: provo tante possibilità di input critiche
+																		   		- metodi formali: si costruisce una rappresentazione formale del circuito e lo si valida
+																		   		
+																		   nella realtà il numero di bug è esiguo rispetto alla complessità perchè i processori fanno sempre le stesse cose
+																		   e quindi solo pochi stati interni vengono visitati
+																		   
+									- guasti transitori: problemi termici o di alimentazione
+									
+									- guasti permanenti: rottura del chip
+									
+per rispettare la legge di moore si è introdotto l'uso dei multicore
+
+questi permettono: - maggiore predicibilità delle prestazioni
+
+				   - parallelismo reale
+				   
+				   - miglior gestione termica/potenza
+				   
+hanno bisogno però di nuovi metodi di interconnessioni perchè bus, point to point e crossbar all'aumentare di core diventano obsoleti
+
+non posso più spingere su aumento di frequenza e su potenza perchè ho raggiunto lo stato dell'arte( 4 GHz e 100W), oltre rischierei di rovinare il chip
+
+tipi di multicore: differiscono per l'organizzazione di memoria: - shared memory: memoria condivisa tra tutti i componenti, non è gestita dal programmatore
+															     - distributed memory: la memoria deve essere gestita dal programmatore
+															     
+la memoria deve essere coerente: maschera i livelli di cache al programmatore
+								 
+								 è implementata in 2 modi: - broadcast based: tutti i componenti vedono tutte le richieste nello stesso ordne in cui avvengono, è basata su bus
+								 												
+								 											  i messaggi sono principalmente di cache miss( non ho il dato richiesto in cache e quindi devo chiedere al processore che lo ha di mandarmelo)
+								 											  e di copia datata in cache
+								 											  
+								 											  una volta che ho un cache miss il memory controller manda in broadcast la richiesta per il dato a TUTTI i processori.
+								 						   
+								 						   - directory based: si usa una struttura diversa dal bus che può scalare in base con l'aumentare della banda richiesta( reti point-to-point, mesh)
+								 						   					  e si usa un protocollo di tipo unicast o multicast e non broadcast
+								 						   					  
+								 						   					  una volta che ho un cache miss il memory controller manda in unicast la richiesta per il dato al processore interessato.
+								
+la cache può essere privata(possono esserci più copie del dato) o condivisa(esiste solo una copia del dato)
+
+tipi di NoC: - dirette: ogni nodo ha il proprio switch
+
+			 - indirette: uno switch connette più nodi
+			 
+			 sono classificate anche in base a varie metriche: - hop-count: numero di hop per connettere 2 componenti
+			 												   - diametro rete: numero massimo di hop count per raggiungere 2 componenti della rete
+			 												   - grado di interconnessione: numero di link che ogni nodo possiede
+			 												   
+			 paramentri importanti: - politiche di routing: scegliere collegamenti permessi al fine di evitare deadlock
+			 						- switching: usare commutazione di paccheto o di circuito
+			 						- arbitration: quali collegamenti scegliere se ne ho più di uno possibile
+			 						
+			 						
+- politiche di routing: - deterministico: data una coppia sorgente-destinazione ho un solo percorso possibile
+										  
+										  es: XY routing: esaurisco gli spostamenti sulle x e poi sule y, non sfrutto bene la topologia di rete, sono deadlock free
+										  
+						- oblivious: scelgo il cammino a caso
+						- adattivo: scelgo in base allo stato corrente della rete, posso scegliere: - cammino minimo
+																									- cammino non minimo: serve per evitare contention
+				 
+le informazioni sono scambiate nelle NoC tramite messaggi, sono formati da: - pacchetti: contengono head flit, uno o più body flit, e un tail flit
+																			- flit: flow control digit
+																			- phit: physical digit
+																			
+2 tipi di approccio per la soluzione flit-based: - wormhole: un solo buffer per ogni ingresso, soffre di head of line blocking
+
+															  architettura formata da: - route computation: decide quale rotta deve prendere il flit esaminato
+															  						   - switch allocator: decide su quale link della crossbar trasmettere
+															  						   - crossbar: permette la comunicazione di ogni input con tutte le uscite
+											     
+											     - virtual channel: più buffer per ogni ingresso per i flit (virtual channel)
+											     					
+											     					hanno un ulteriore stato in ingresso che indica quale virtualchannel scegliere
+											     				    
+											     	
+											     identificativi componenti di un flit: - BW: buffer write, scrivo il flit in un particolare input
+											     										
+											     									   - RC: route computation, decido che rotta deve prendere il flit, campo presente solo nell'head flit
+											     									   
+											     									   - VA: virtual channel allocator, decido in quale virtualchannel scrivere il flit, campo presente solo nell'head flit
+											     									   
+											     									   - SA: switch allocator, risolvo i conflitti sui collegamenti della crossbar
+											     									   
+											     									   - ST: switch traversal, creo il collegamento fisico tra ingresso e uscita nella crossbar
+											     									   
+											     									   - RT: route traversal, invio il pacchetto e dealloco il collegamento fisico	   
+												
+												tipi di pipeline: - classica: flit: |BW|RC|VA|SA|ST|RT|
+																			  altri flit rimangono in attesa se ho altri flit che non sono arrivati alla fase di ST, poi posso iniziare a processare quello dopo
+																			  
+																  - lookahead router: si precalcola la route prima di scrivere il flit nel buffer
+																  					  flit: |BW-RC|VA|SA|ST|RT|
+																  					  
+																  - speculation: le operazioni SA e VA si svolgono in parallelo speculando sul successo di quest'ultima
+																  				 flit: |BW-RC|SA-VA|ST|RC|
+																  				
+																  				
+ottimizzazioni NoC: - buffer optimization: viene usato ViChaR che permette di gestire la capienza dei virtual channel in base alla congestione di rete.
+											
+										   - rete con alto traffico: tanti virtual channel con poca capienza
+										   - rete con basso traffico: pochi virtual channel con tanta capienza
+										   
+					- ottimizzazione di rete: 
+					
+power management: bisogna garantire performance maggiori cercando di limitare la potenza dissipata
+				  con il technology	scaling si sentono molto di più i fenomeni di leakage date dalle correnti parassite, e sono di 3 tipi: - subthreshold leakage
+				  																														   - gate leakage
+				  																														   - junction leakage	
+				  																														   
+				  concetti diversi: - energia: integrale della potenza lungo l'asse del tempo
+				  					- potenza: potenza istantanea consumata 
+				  								
+				  							   divisa in: - potenza dinamica: potenza dissipata quando gli elementi del circuito commutano di stato
+				  							   								
+				  							   								  pot din = pot switching + internal pow
+				  							   								 
+				  							   								  - potenza di switching: potenza richiesta per caricare/scaricare la capacità da comandare
+				  							   								 
+				  							   								  - internal power: potenza dissipata quando tutti e 2 i componenti del CMOS sono attivi
+				  							   				
+				  							   			  - potenza statica: potenza dissipata quando i componenti non stanno commutando di stato
+				  							   			  			         
+				  							   			  			         data da: - subthreshold leakage: corrente che circola tra drain e source
+				  							   			  			         		
+				  							   			  			         		  - gate leakage: corrente da gate a substrato
+				  							   			  			         		  
+				  ho un trade of tra potenza statica e quella dinamica, infatti se cerco di diminuire la potenza di switching abbassando la Vdd ho un peggioramento delle prestazioni perchè influisce sulla Idd,
+				  quindi per ovviare a questo problema devo abbassare per forza la Vt ma questo mi fa aumentare la subthreshold leakage
+				  
+				  tecniche per low power: - diminuire potenza dinamica: - clock gating: spengo il clock a quei componenti in stato di idle
+				  														
+				  														- multi Vdd: associo STATICAMENTE ad ogni componente la sua Vdd minima per il funzionamento
+				  														
+				  														- DVSFS: associo DINAMICAMENTE ad ogni componente la sua Vdd minima in base all'operazione da svolgere				  							   			  						
+				  							   			  							 
+				  						  - diminuire potenza statica: - multi-threshold: si usano blocchi con Vt diverse per ovviare al problema del subthreshold leakage	
+				  						  
+				  						  							   - power gating: tecnica che consiste nello spegnere le parti di circuito non utilizzate.
+				  						  							   					
+				  						  							   				   problemi: - perdo lo stato quando spengo una cella, ricostruire lo stato è molto dispendioso: per ovviare a questo problema posso usare tensioni bassissime tali però da non far perdere lo stato al componente da 'spegnere'
+				  						  							   				   
+				  						  							   				   			 - il tempo di riaccensione mi introduce ritardi considerevoli			  						  							   				   			 	
+				  						  							   				   			 
+				  						  							   				   			 - devo isolare le uscite del componente spento perchè il loro stato diventa casuale e potrebbe compromettere il funzionamento di altre parti del circuito
+				  						  							   				   	
+				  						  							   				   posso applicare questa tecnica con 2 gradi di precisione: - fine (fine grain): agisco a livello di singola cella
+				  						  							   				   																
+				  						  							   				   															 - alto (coarse): posso spegnere intere parti del circuito
+				  						  							   				   															 
+				  						  							   				   	devo introdurre un controllore che gestisca quali regioni del chip spegnere e i componenti che effettivamente le spengono.
+				  						  							   				   	
+				  						  							   				   	per spegnere si usano dei MOS che devono avere: - bassa corrente di leakage
+				  						  							   				   													- bassa caduta di tensione
+				  						  							   				   													- basso tempo di riaccensione
+				  						  							   				   													
+				  						  							   				   															
+				  						  							   				   										   				
+					   								    						   						   			 		   
