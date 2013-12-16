@@ -914,4 +914,85 @@ power management: bisogna garantire performance maggiori cercando di limitare la
 				  						  							   				   													
 				  						  							   				   															
 				  						  							   				   										   				
-					   								    						   						   			 		   
+---------------------- SISTEMI REAL-TIME-----------------------		
+
+le librerie possono essere di 2 tip: - nomelibreria: solo implementazione delle funzioni, permette l'esecuzione del codice che implementa la libreria
+
+									 - nomelibreria-dev: presente sia nomi che implementazioni
+									 
+le librerie possono essere linkate: - staticamente: inglobo fisicamente il codice della libreria nel mio eseguibile, eseguibile più grosso, tolgo problemi di compatibilità
+
+									- dinamicamente: nel mio eseguibile ho solo una referenza alla libreria, sarà compito della macchina che deve far girare il mio eseguibile il reperire di tali librerie
+									
+processo di compilazione: 1 - passo al compilatore un file C, i file h e un file di startup
+
+						  2 - il compilatore genera un file .s contenente codice assembly
+						  
+						  3 - l'assemblatore prende il file .s più eventualmente anche altri file assembly ausiliari
+						  
+						  4 - l'assemblatore produce un file .o
+						  
+						  5 - il linker prende tutti i file .o necessari, un  file di startup, e un file .ld denominato linker script, il quale mi indica in che aree di memoria mettere le varie componenti del programma
+						  
+						  6 - il linker genera il file eseguibile .elf	
+						  
+Makefile: file che viene letto dal tool make,  composto da: - target: nome della regola da eseguire
+															- dipendenze: dipendenze che la regola deve soddisfare per essere eseguita
+															- comandi: comandi da eseguire per svolgere la regola	
+		  
+		  simboli speciali: - $@: riferito al target
+		  					- $^: riferito a tutte le dipendenze
+		  					- $<: riferito alla prima dipendenza
+		  					
+		  difficili da scrivere in modo che possano funzionare su macchine diverse, si usano gli autotools
+		  
+		  autotool: insieme di makefile e script shell che consentono di generare makefile specifico per la macchina utilizzata 
+		  
+		  			funzionamento: 1 - autoscan: partendo dal source tree genera un template di configurazione
+		  							
+		  						   2 - integra questo template e crea il file config.in
+		  						   
+		  						   3.1 - autoconf: partendo da config.in genera un file configure
+		  						   
+		  						   3.2 - autoheader: integra configure guardando se le librerie necessarie sono presenti o meno sulla macchina
+		  						   
+		  						   3.3 - automake: partendo da un file Makefile.am, che contiene tutte le dipendenze di base, genera un file Makefile.in
+		  						   
+		  						   4 - generazione del makefile vero e proprio partendo da configure
+		  						   
+principali strumenti di debugging: - objdump: permette di vedere un contenuto di un oggetto o eseguibile
+
+								   - gdb
+								   
+								   - strace: permette di vedere tutte le syscall di un eseguibile
+								   
+								   - ltrace: traccia tutte le chiamate a librerie del programma
+								   
+								
+---------------------- TESTING -----------------------	
+
+4 fasi di testing: - simulazione: tutti gli elementi del sistema sono simulati
+								  si crea prima il modello dell'ambiente e poi quello del sistema
+								  
+								  3 tipi di simulazione: - one way: si ignora il comportamento del sistema e si prendono in considerazione solo l'input e l'output generato
+								  									il sistema viene simulato al computer
+								  									 
+								  						 - feedback: si considera anche il comportamento dinamico dell'ambiente SIMULANDOLO, possibile solo se si hanno modelli semplici
+								  						 
+								  						 - prototipazione rapida: il comportamento dinamico dell'ambiente non viene simulato ma è ottenuto direttamente dall'ambente reale
+					
+				   - prototipazione: alcuni elementi sono simulati altri sono reali ma dei prototipi
+				   					 
+				   					 si procede a testare il software reale nell'ambiente simulato ( software in the loop ) e poi si testa l'hardware reale nell'ambiente simulato( hardware in the loop )
+				   					 
+				   					 diversi tipi di testing: - test unità software: legata alla verifica dei singoli componenti software
+				   					 						  - test di integrazione software: si verifica come i vari moduli software interagiscono tra loro
+				   					 						  - test di integrazione hardware/software: si testa come il software interagisce con l'hardware
+				   					 						  - test di integrazione di sistema: si verifica che il sistema si comporti secondo le specifiche
+				   					 						  - test di integrazione ambientale: si verifica come reagisce il sistema in particolari condizioni ambientali
+				   					 						  
+				   
+				   - pre-produzione: tutti gli elementi del sistema sono reali	
+				   
+				   - post-produzione: tutti gli elementi del sistema sono reali e creati con i processi produttivi finali
+				   					  serve per capire come tarare la catena di produzione													   								    						   						   			 		   
