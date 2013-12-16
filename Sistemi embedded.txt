@@ -60,9 +60,9 @@ bisogna integrare bene eterogeneità e costruttività:
 
 ---------------------- ARCHITETTURA E PROGETTAZIONE ----------------------	 
 	
-l'attività di progettazione è divisa in 4 fasi: - definizione dell'architetture
-												- partizionamento in hardware software e comunicazione
-												- implementazione hardware software e comunicazione
+l'attività di progettazione è divisa in 4 fasi: - definizione dell'architettura
+												- partizionamento in hardware, software e comunicazione
+												- implementazione hardware, software e comunicazione
 												- produzione
 
 anche i progettisti più esperti si avvalgono di metodi empirici in fase di progettazione
@@ -112,7 +112,7 @@ anche i progettisti più esperti si avvalgono di metodi empirici in fase di prog
 		  				
 		  				- materiale adesivo: unisce gli altri 2 strati, pre preq
 		  				
-		  fabbricazione PCB: 1 - si stende una lastra di materiale isolante e subito sopra viene fissato il ame
+		  fabbricazione PCB: 1 - si stende una lastra di materiale isolante e subito sopra viene fissato il rame
 		  					 
 		  					 2 - si tracciano le piste con del materiale fotosensibile attraverso una tecnica di fotolitografia
 		  					 
@@ -137,18 +137,18 @@ anche i progettisti più esperti si avvalgono di metodi empirici in fase di prog
 		  									   - flying-probe: pochi probe ma che si spostano di precisione sui componenti della board da testare
 		  									   
 		  	la maggior problematica che sorge quando si progetta un PCB è l'integrazione tra i componenti, infatti molto spesso capita che i componenti siano molto
-		  	eterogenei tra di loro.si pò ovviare a questo problema facendo il pinout dei componenti in fase di partizionamento del sistema
+		  	eterogenei tra di loro.si può ovviare a questo problema facendo il pinout dei componenti in fase di partizionamento del sistema
 		  	
 		  	altre problematiche : - latenza tra le piste di comunicazione e le comunicazioni all'interno dei singoli componenti
 		  					 
 			boundary scan: tecnica di testing che collega tutti i pin con una sequenza di flip flop e multiplexer.
 						   tutti i pin sono collegati da un unico grande registro sequenziale a scorrimento detto scan chain, e questo permette di portare e osservare 
-						   l valore logico su ciascun pin
+						   il valore logico su ciascun pin
 						   
 
 -SoC: vantaggi: - costo unitario: diminuisce il costo dei componenti necessari ma si alza notevolmente il costo di progettazione( ha senso solo in caso di elevate produzioni)
 				
-				- prestazioni: integrando tutto all'interno del singolo chip si eliminano le poste di interconnessione che provocavano una grande latenza nelle comunicazioni
+				- prestazioni: integrando tutto all'interno del singolo chip si eliminano le piste di interconnessione che provocavano una grande latenza nelle comunicazioni
 				
 				- sicurezza: è molto più difficile effettuare del reverse engineering sulla struttura di un Soc rispetto ad un PCB 
 				
@@ -215,7 +215,7 @@ anche i progettisti più esperti si avvalgono di metodi empirici in fase di prog
 					  					 			  - architettura di rete: piatta o gerarchica e centralizzata o decentralizzata
 		  					 
 progettare un sistema embedded dal nulla, pur avendo chiara l'architettura e l'applicazione finale è difficile anche per progettisti esperti, inoltre l'onere computazionale
-per avere un bon caso di est è molto significativo ed è per questo che ci si avvale di piattaforme di prototipazione per risolvere il problema, e queste sono:
+per avere un buon caso di test è molto significativo ed è per questo che ci si avvale di piattaforme di prototipazione per risolvere il problema, e queste sono:
 		
 		- sistemi di emulazione digitali semplici: sono FPGA e permettono di emulare sistemi semplici con porte standard
 		
@@ -229,10 +229,10 @@ per avere un bon caso di est è molto significativo ed è per questo che ci si a
 		
 		- sistemi di emulazione di SoC
 		
-approccio alla progettazione con board di prototipazione: 1 - analis dei requisiti
+approccio alla progettazione con board di prototipazione: 1 - analisi dei requisiti
 															
-														  2 - scelta ella piattaforma: si cerca di trovare la piattaforma più simile a quella reale e posibilmente
-														  							   estendibile
+														  2 - scelta della piattaforma: si cerca di trovare la piattaforma più simile a quella reale e possibilmente
+														  							    estendibile
 														  							   
 														  3 - reperimento sdk: occhio ai tempi!
 														  
@@ -285,7 +285,7 @@ ci si avvale di 3 strumenti fondamentali: - modelli
 						 							  															  (abbasso il costo di simulazione)
 						 							  															  nel modello time driven lo stato viene ricalcolato ad ogni scatto 
 						 							  															  di tempo anche se lo stato non cambia 
-						 							  - time driven( il temp scatta ad intervalli prefissati)							  		
+						 							  - time driven( il tempo scatta ad intervalli prefissati)							  		
 			
 						 - natura: - deterministico
 						 		   - non deterministico
@@ -306,7 +306,7 @@ ci si avvale di 3 strumenti fondamentali: - modelli
 					     
 					     			 - algoritmico: molto poco utile in hardware(livello di astrazione troppo alto)
 					     			 
-					     			 - dataflow: descrizione specifica di ogni componente hardware, della dimensione dei blocchi di memori ecc... attraverso linguaggi descrittivi(VHDL)
+					     			 - dataflow: descrizione specifica di ogni componente hardware, della dimensione dei blocchi di memoria ecc... attraverso linguaggi descrittivi(VHDL)
 					     			 
 					     			 - logico: descrizione del sistema in modo non ambiguo tramite la descrizione di blocchi logici elementari
 					     			 
@@ -352,7 +352,7 @@ ci si avvale di 3 strumenti fondamentali: - modelli
 										c++ -> assembly: compilatore	
 										
 			verifica: strumenti che verificano che il modello rispetti veramente le specifiche
-			testing	  la verifica in abito software viene principalmente effettuato facendo girare il software ottenuto sull'architettura che lo deve ospitare,
+					  la verifica in abito software viene principalmente effettuato facendo girare il software ottenuto sull'architettura che lo deve ospitare,
 					  se non è disponibile l'architettura si usano le instruction set dell'architettura su un altro sistema( spesso insieme all'instruction set è fornito anche il debugger)
 					  si può fare verifica anche con profiler e i tool di code coverage	
 					  
@@ -361,7 +361,8 @@ ci si avvale di 3 strumenti fondamentali: - modelli
 					  																  - simulatori elettro analogici: risolvono le equazioni che governano il sistema (SPICE)
 					  
 					  una volta	ultimata la fase di produzione si passa al testing.
-					  in ambito software coincide con la fase d verifica mentre in ambito hardware assume un ruolo molto importante.
+			
+			testing:  in ambito software coincide con la fase d verifica mentre in ambito hardware assume un ruolo molto importante.
 					  lo scoglio più grande è generare sequenze di input utili e significative per il caso di test( si usano le tecniche descritte al capitolo 2)
 					  
 attraverso tutti questi strumenti modelli e metriche è possibile delineare un flusso di sviluppo del sistema:
@@ -396,7 +397,7 @@ processo planare: principale processo di produzione degli ASIC.
 				  si parte da 2 importanti assunzioni di base:  - si parte da un semiconduttore( quasi sempre il silicio)
 				  												- tutti i componenti che formano un circuito integrato possono essere creati con il semiconduttore scelto
 				  
-				  3 importanti componenti: - materiale conduttore: spesso finissime piste di rame
+				  4 importanti componenti: - materiale conduttore: spesso finissime piste di rame
 				  						   - silicio n: alta conducibità
 				  						   - silicio p: bassa conducibilità
 				  						   - isolante: ossido di silicio
@@ -472,13 +473,13 @@ ne esistono 3 tipi di PLD: - one-time programmable: programmabile solo una volta
 						   
 
 le PLD hanno molto spesso una struttura regolare a matrice,e la loro unità fondamentale è la lookup table(componente in grado si eseguire una qualsiasi funzione logica a 4 ingressi)
-le celle possono essere posizionate secondo 2 schemi: - distribuite: interconnessioni e calle sono equamente distribuite su tutta la board
+le celle possono essere posizionate secondo 2 schemi: - distribuite: interconnessioni e celle sono equamente distribuite su tutta la board
 																	 (formano le FPGA)
 																	 
 													  - accentrate: si acccentrano molte celle in un area ristretta e si lascia lo spazio per le interconessioni nella restante area
 													  				(formano le CPLD)						 		
 													  				
-le interconnessioni possono essere di 4 tipi: -connessioni globali: attraversano tutto il chip e si collegano a molti blocchi logici, introducono molti ritardi
+le interconnessioni possono essere di 4 tipi: - connessioni globali: attraversano tutto il chip e si collegano a molti blocchi logici, introducono molti ritardi
 											
 											  - connessioni locali: collegano solo blocchi logici vicini, perdo in prestazioni quando devo collegare blocchi logici lontani
 											  
@@ -504,18 +505,18 @@ il progettista deve scegliere il tipo di processore distinti in: - GPP : process
 inoltre deve scegliere in che forma acquistarlo, se in forma COTS(forma fisica) oppure IP(descrizione intellettuale)
 
 ci sono altri vari fattori da considerare inoltre: - prestazioni: misure basate sui istruzioni per ciclo di clock, MIPS(million operation per second) MFLOPS, bisogna pero contestualizzarle.
-																 ci si avvale anche di altre misure non funzionali come la potenza dissipata
+																  ci si avvale anche di altre misure non funzionali come la potenza dissipata
 																 
-												  - memoria: 2 parametri fondamentali: capienza e banda passante
+												   - memoria: 2 parametri fondamentali: capienza e banda passante
 												  
-												  - ambiente di sviluppo: valutare come avviene la compilazione e i software di analisi
+										    	   - ambiente di sviluppo: valutare come avviene la compilazione e i software di analisi
 												  
-												  - packaging: come è strutturato il packaging se incluso
+												   - packaging: come è strutturato il packaging se incluso
 												  
-												  - software: quante librerie ha a disposizione quell'architettura e se eventualmente è presente un S.O
+												   - software: quante librerie ha a disposizione quell'architettura e se eventualmente è presente un S.O
 												  
-												  - periferiche: valutare se serve avere un microprcessore(pura unita di calcolo( che lascia libertà al progettista di scegliersi le sue periferiche,
-												  				 oppure un microcontrollore( chip + periferiche già assemblate)
+												   - periferiche: valutare se serve avere un microprcessore(pura unita di calcolo) che lascia libertà al progettista di scegliersi le sue periferiche,
+												  			 	  oppure un microcontrollore( chip + periferiche già assemblate)
 												  				 
 -GPP: utili nelle applicazioni che hanno bisogno dell'interazione con l'uomo per funzionare.
 		
@@ -540,7 +541,7 @@ ci sono altri vari fattori da considerare inoltre: - prestazioni: misure basate 
 	 																	   
 	 																	   - hanno tutte tempo di esecuzione quasi fisso e dimensione fissata e questo fa si che il processo di pipelining frutti i suoi massimi benefci
 	 																	   
-	 									sono dotate di un gran numero di registri divisi solitamente per scopo, questo grande numero riduce il memory spill(salvare il dato di un registro in memoria percheè ho finito i registri a disposizione)
+	 									sono dotate di un gran numero di registri divisi solitamente per scopo, questo grande numero riduce il memory spill(salvare il dato di un registro in memoria perchè ho finito i registri a disposizione)
 	 									
 	 									tutte le operazioni si compongono delle 3 operazioni fondamentali load, store , execute.
 	 									
@@ -592,7 +593,7 @@ ci sono altri vari fattori da considerare inoltre: - prestazioni: misure basate 
 																			                                  - differenziale: 2 linee di comunicazione 
 																			   
 																			   - schema di temporizzazione: può essere: - sincrono: i 2 sistemi devono essere costantemente sincronizzati
-																			   														ci sono 2 modi di fare ciò: posso avere 2 linee distinte in cui su una mando i dati e su un altra il clock
+																			   														ci sono 2 modi di fare ciò: posso avere 2 linee distinte in cui su una mando i dati e su un'altra il clock
 																			   														oppure cerco di codificare il clock sulla stessa linea dei dati
 																			   														
 																			   														codifiche: - NRZ(non return to zero): i livelli logici 0 1 sono codificati da segnali basso o alto rispettivamente
@@ -624,7 +625,7 @@ ci sono altri vari fattori da considerare inoltre: - prestazioni: misure basate 
 										
 										- SPI: sistema a bus sincrono composto da 4 linee: - una per il clock (SCLK)
 																						   - una per l'output
-																						   - una per l'imput
+																						   - una per l'input
 																						   - e una per scegliere lo slave dove trasmettere i dati
 																						   
 											   in questo bus posso avere un solo master
@@ -661,7 +662,7 @@ ci sono altri vari fattori da considerare inoltre: - prestazioni: misure basate 
 														  
 						 - modulazione analogica: posso modulare in ampiezza, frequenza e fase
 						 
-						 - modulazione analogica: la portante è analogica mentre il segnale è digitale		
+						 - modulazione digitale: la portante è analogica mentre il segnale è digitale		
 						 
    
 	 								   
@@ -684,13 +685,13 @@ un altro problema è l'indirizzamento: come fa il microprocessore ad individuare
 										  		
 										- standard I/O: i bus hanno una linea in più sul bus di controllo dove identifico con un segnale se voglio scrivere su un componente I/O
 										
-										- port maped I/O: i dispositivi di I/O sono collegati direttamente al microprocessore attraverso dei canali dedicati. il processore legge e scrive su questi dispositivi come se fossero normali registri
+										- port mapped I/O: i dispositivi di I/O sono collegati direttamente al microprocessore attraverso dei canali dedicati. il processore legge e scrive su questi dispositivi come se fossero normali registri
 									
 	- polling: metodo che controlla periodicamente un registro di stato di una periferica per sapere se ci sono dati da leggere
 			   va a discapito delle performance questo metodo e in particolare quando si devono controllare periferiche con un diverso rate
 			   
 	- interrupt: metodo asincrono, sono le periferiche stesse che comunicano al processore che ci sono dati da leggere. 
-				 per fare ciò le periferiche devono essere collegate direttamente al processorre tramite una linea IRQ e il processore eve avere una linea IRQ per comunicare
+				 per fare ciò le periferiche devono essere collegate direttamente al processorre tramite una linea IRQ e il processore deve avere una linea INTA per comunicare
 				 alla periferica che sta eseguendo la interrupt richiesta
 				 
 				 gestione interrupt: 1 - ricevere richiesta
@@ -883,7 +884,7 @@ power management: bisogna garantire performance maggiori cercando di limitare la
 				  							   			  			         		
 				  							   			  			         		  - gate leakage: corrente da gate a substrato
 				  							   			  			         		  
-				  ho un trade of tra potenza statica e quella dinamica, infatti se cerco di diminuire la potenza di switching abbassando la Vdd ho un peggioramento delle prestazioni perchè influisce sulla Idd,
+				  ho un trade off tra potenza statica e quella dinamica, infatti se cerco di diminuire la potenza di switching abbassando la Vdd ho un peggioramento delle prestazioni perchè influisce sulla Idd,
 				  quindi per ovviare a questo problema devo abbassare per forza la Vt ma questo mi fa aumentare la subthreshold leakage
 				  
 				  tecniche per low power: - diminuire potenza dinamica: - clock gating: spengo il clock a quei componenti in stato di idle
