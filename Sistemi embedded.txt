@@ -914,7 +914,7 @@ power management: bisogna garantire performance maggiori cercando di limitare la
 				  						  							   				   													
 				  						  							   				   															
 				  						  							   				   										   				
----------------------- SISTEMI REAL-TIME-----------------------		
+---------------------- SISTEMI REAL-TIME -----------------------		
 
 le librerie possono essere di 2 tip: - nomelibreria: solo implementazione delle funzioni, permette l'esecuzione del codice che implementa la libreria
 
@@ -995,4 +995,31 @@ principali strumenti di debugging: - objdump: permette di vedere un contenuto di
 				   - pre-produzione: tutti gli elementi del sistema sono reali	
 				   
 				   - post-produzione: tutti gli elementi del sistema sono reali e creati con i processi produttivi finali
-				   					  serve per capire come tarare la catena di produzione													   								    						   						   			 		   
+				   					  serve per capire come tarare la catena di produzione
+				   					  
+				   					  
+---------------------- SENSORI -----------------------	
+
+il compito fondamentale di un progettista sta nella scelta del sensore da utilizzare
+
+deve valutare vari parametri: - che cosa deve misurare
+							
+							  - come misurarlo (misura diretta o indiretta)	
+							  
+							  - con quale grado di precisione misurarlo
+							  
+i sensori possono essere digitali(interruttore) o con output analogici che variano a seconda della grandezza fisica misurata
+
+in un sensore IDEALE l'uscita dovrebbe essere diretamente proporzionale alla grandezza misurata
+
+parametri per valutare un sensore: - sensibilità: fattore moltiplicante sulla grandeza misurata, serve per esaltare le grandezze per renderle compatibili con alcuni ingressi
+								   - offset: fattore additivo sulla grandezza da misurare
+								   - linearità
+								   - riferimento: indica a cosa devono essere rapportate le misure rilevate	
+								   - errore
+								   - calibratura: specifica ogni quanto ricalibrare il sensore
+								   
+esempi di sensori: - posizione: si usano dei potenziometri, ovvero resistenze variabili in base alla posizione di un cursore
+				   - velocità: si usano sensori di tipo digitale che emettono impulsi a seconda della velocità di rotazione, da questi impulsi si ricava la velocità angolare
+				   - temperatura: si ricava la temperatura in base alla tensione letta
+				   - mems: componenti micromeccanici a bassissimo costo 
