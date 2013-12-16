@@ -912,6 +912,43 @@ power management: bisogna garantire performance maggiori cercando di limitare la
 				  						  							   				   													- bassa caduta di tensione
 				  						  							   				   													- basso tempo di riaccensione
 				  						  							   				   													
+sistemi di simulazione: - GEM5: simulatore di architetture CPU e di architetture di memoria
+								
+								posso avare varie caratteristiche: - CPU: - semplici
+																		  - dettagliate in-order
+																		  - dettagliate	out-of-order
+																   
+																   - memorie flessibili
+																   
+																   - moltissimi componenti a disposizione
+								
+								caratteristiche: - flessibile: posso costruire il sistema con i componenti che voglio
+												 - dettaglio: posso andare da un dettaglio ad alto livello fino a scendere a dettaglio di microarchitettura
+												 - velocità: è un simulatore a tempo discreto event-driven, posso arrivare a frequenze impensabili nel mondo reale
+								
+								modalità di funzionamento: - full system: posso simulare un intero sistema operativo con gestione delle interrupt, syscall ecc..
+								
+														   - syscall emulator: simula solo una determinata applicazione
+														   
+														   prende un file python di configurazione( specifico modalità di funzionamento e modello i componenti del sistema), e sulla base di questo file parte la simulazione in C++
+														   
+														   simula solo il necessario essendo event-driven e il tempo è espresso in tick e stabilito un numero di tick per secondo ricavo la frequenza di funzionamento.
+														   posso raggiungere al massimo la precisione di 1 tick ogni pico secondo
+														   
+														   ogni oggetto ha delle poste per comunicare con altri oggetti e i messaggi viaggiano sui collegamenti.
+														   
+														   esistono 3 tipi di interfacce di trasporto: - funzionale: calcolo solo il risultato di un operazione
+														   											   - atomica: simulazione funzionale ma che considera anche cambiamenti interni
+														   											   - timing: simulazione a livello microarchitetturale
+														   	
+														   diversi tipi di CPU simulabile: - simple CPU: CPU senza supporto al multithreading e con una pipeline a 5 stadi
+														   								   - detailed CPU: CPU con supporto al multithreading e pipeline variabile
+														   								   - checker CPU: CPU di supporto a simulazioni complesse
+														   								   
+						- McPAT: serve per modellare potenza, area e timing in architetture multicore, viene configurato tramite un file XML dove si specifica: tipo di architettura, parametri componenti e statistiche da attuare
+						
+						- Orion: come McPAT ma non usa un modelllo timing
+				  						  							   				   													
 				  						  							   				   															
 				  						  							   				   										   				
 ---------------------- SISTEMI REAL-TIME -----------------------		
