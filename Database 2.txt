@@ -87,16 +87,39 @@ process nel server: - richieste accodate in una coda di input
 famiglie DBMS: - omogenei: stessa "marca" (oracle, sybase, ecc...)
 			   - eterogenei: "marche diverse"
 			   
-data fragmentation: proprietà che deve rispettare: - completezza: ogni elemento della tabella T deve essere presente in uno dei suoi frammenti
-												   - restorability: la tabella T deve poter essere ricostruita dai suo frammenti
+data fragmentation: - proprietà che deve rispettare: - completezza: ogni elemento della tabella T deve essere presente in uno dei suoi frammenti
+												     - restorability: la tabella T deve poter essere ricostruita dai suo frammenti
 												   
-					tipi di frammentazione: - horizontal fragmentation: - frammento: insieme di tuple
-																		- completezza: disponibilità di tutte le tuple
-																		- restorability: UNIONE di tutte le tuple
+					- tipi di frammentazione: - horizontal fragmentation: - frammento: insieme di tuple
+																		  - completezza: disponibilità di tutte le tuple
+																		  - restorability: UNIONE di tutte le tuple
 											
-											- vertical fragmentation: - frammento: insieme di attributi
-																	  - completezza: disponibilità di tutti gli attributi
-																	  - restorability: JOIN  sugli attributi
+											  - vertical fragmentation: - frammento: insieme di attributi
+																	    - completezza: disponibilità di tutti gli attributi
+																	    - restorability: JOIN  sugli attributi
 																	  
-																	  (PROBLEMA: devo duplicare la chiave primaria su ogni frammento per poter ricostruire)
-																	  	 
+																	    (PROBLEMA: devo duplicare la chiave primaria su ogni frammento per poter ricostruire)
+
+					- tipi di allocazione: - fully centralized: tutte le tabelle accorpate in un unico db
+										   
+										   - centralized and distributed (fully replicated): le tabelle risiedono tutte su un unico db ma hanno anche dei doppioni distribuiti su vari altri sistemi
+										   
+										   - partially distributed, no replication: alcune tabelle sono su un db altre su altri, non ci sono mai dei doppioni
+										   
+										   - partially centralized and fully distributed: alcune tabelle risiedono su un db centrale mentre nei sotto sistemi risiedono una tabella per OGNI tipo (non posso avere un sotto sistema che non abbia 
+										   																																						   un tipo di tabella)
+										  
+										   - asymmetric allocation: non tutti i sotto sistemi hanno frammenti del sistema centrale
+										   
+										   - fully distributed, little replication: solo le tuple che hanno un attributo con lo stesso valore sono replicate su più sotto sistemi( es: utente che ha più di un account)
+										   
+partizionare bene un database: bisogna garantire la TRASPARENZA: 3 livelli: - trasparenza di frammentazione: l'utente vede il db come non frammentato ma unico									
+																											 (es: SELECT balance FROM Account WHERE id=1)
+																											 
+																			- trasparenza di allocazione: l'utente sa che è frammentato ma non ha bisogno di gestire dove sono allocate le risorse, non devo specificare su che macchina
+																										  si trovano i frammenti, per lui sono tutti sulla stessa macchina
+																										  
+																			- trasparenza di linguaggio: l'utente sa che sono frammentate e allocate e lo deve indicare nella query, deve indicare la macchina fisica tramite la "@"
+																												
+																					
+																						  	 
