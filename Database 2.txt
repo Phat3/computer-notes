@@ -73,6 +73,10 @@ protocolli: - Two phase commit: - 2 componenti fondamentali: - transaction manag
 						  usa il protocollo two phase commit con ottimizzazioni		
 						  
 						  
+
+
+
+		
 						  
 ------------------------- DISTRIBUTED DATABASE -------------------------
 
@@ -80,9 +84,9 @@ architetture client server: - client: formula le query e mostra i risultati
 							- server: risolve le query e calcola i risultati
 							
 process nel server: - richieste accodate in una coda di input
-					-  richieste smistate tra i vari servizi
+					- richieste smistate tra i vari servizi
 					- risultato accodato in una coda di output
-					-risultato spedito al client appropriato
+					- risultato spedito al client appropriato
 					
 famiglie DBMS: - omogenei: stessa "marca" (oracle, sybase, ecc...)
 			   - eterogenei: "marche diverse"
@@ -119,7 +123,164 @@ partizionare bene un database: bisogna garantire la TRASPARENZA: 3 livelli: - tr
 																			- trasparenza di allocazione: l'utente sa che è frammentato ma non ha bisogno di gestire dove sono allocate le risorse, non devo specificare su che macchina
 																										  si trovano i frammenti, per lui sono tutti sulla stessa macchina
 																										  
-																			- trasparenza di linguaggio: l'utente sa che sono frammentate e allocate e lo deve indicare nella query, deve indicare la macchina fisica tramite la "@"
+																			- trasparenza di linguaggio: l'utente sa che sono frammentate e allocate e lo deve indicare nella query, deve indicare la macchina fisica tramite la "@"s
+																			
+classificazione applicazioni distribuite SQL: - remote request: permette le sole operazioni di lettura su un unico db
+											  - remote transaction: permette l'update su un singolo db
+											  - distributed transaction: permette l'update su più db, tutte le query vengono gestite da un singolo db
+											  - distributed request: permette l'update e le query vengono gestite da più db
+
+sistemi legacy: basati su vecchi mainframe: - poco documentati
+											- obsoleti
+											- garantiscono sicurezza 
+							
 																												
+
+
+
+
+
 																					
-																						  	 
+------------------------- PARALLELS AND REPLICATED DB -------------------------		
+
+il parallelismo è garantito dal numero di processori > 1 presenti nel server, possono avere 3 tipi di architetture: - shared nothing: ogni processore ha il suo disco e la sua memoria
+																													- shared disk: condividono i vari dischi tra tutti i processori
+																													- shared memory: oltre ai dischi condividono anche la memoria centrale
+
+tipi di operazioni: - transactional: operazioni SQL semplici, evase in pochi secondi, il benchmark è misurato in transazioni per secondo
+					- data analysis: operazioni complesse, tempo variabile
+
+
+tipi di parallelismo: - inter-query: tutte le query transazionali vengono svolte su un unico processore
+					  - intra-query: le query di data-analysis vengono svolte su più processori contemporaneamente
+					  
+il costo per transazione aumenta all'aumentare del numero di processori, mentre aumenta il numero di transazioni per secondo
+
+data replication: motivazioni: - ho più probabilità di trovare il dato che cerco se ho più copie( es: se un sistema ha problemi posso prendere il dato da un altro)
+ 							   - aumenta l'efficienza
+ 							   
+ 				  metodi di replicazione: - asymmetric replicaion: se ho un nuovo dato scritto sul sistema è il sistema stesso che si occupa di copiarlo anche sugli altri suoi sistemi copia ( l'update che fa il sistema è considerato una transazione a se)
+ 				  						  - symmetric replication: quando faccio l'update lo faccio anche su tutti i sistemi copia (tutti gli update sono considerati un unica transazione)
+ 				  						  
+ 				  metodi di allineamento: - whole copy: copio tutto il database sui sistemi copia
+ 				  						  - delta-plus/delta-minus(sono tabelle riempite tramite trigger): aggiungo/rimuovo solo le cose che cambiano
+ 				  						  
+ 				  						  
+ 				  						  
+
+
+------------------------- DATA WAREHOUSE -------------------------	
+
+data warehouse: descrizione di tutto l'insieme di dati che servono per ricavare una statistica
+
+OLAP: servizi che effettuano analisi suldata warehouse
+
+data mart: sotto-insieme dei data warehouse dove incorporo solo i dati relativi ad una specifica area di business, condividono dati in comune tra i vari data mart
+
+multi-dimensional representation: modello concettuale che descrive l'integrazione tra i vari componenti del data mart.
+								  
+								  è composto da 3 componenti fondamentali: - fact: componenti fondamentali del data mart (VENDITE ECC..)
+								  										   - measures: sono gli attributi del fatto
+								  										   - dimension: sono componenti che associati al fatto danno una tabella su cui creare una statistica( es: Prodotto(dimension) - VENDITE(fact), NEGOZIO(dimension) - VENDITE(fact) )
+								  
+								  è molto utile questo modello perchè è già pronto per essere plamsmato su un db relazionale
+								  
+								  ogni fatto ha come attributi, oltre alle measures, tutte le chiavi primarie dei dimension a lui collegati
+								  
+operazioni possibili su data warehouse: - roll up: aggregare tutte le informazioni di un unico valore (es: somma del prodotto vino venduto in un mese)
+										- drill down: ricavare il dettaglio di un valore( es: vendita giornaliera del prodotto vino)
+										- slice and dice
+										- pivot: cambiare angolazione del data cube
+										
+classificazione OLAP: - ROLAP: basati su db relazionali, possono contenere grandi quantità di dati
+					  - MOLAP: ba\sati su db NON relazionali, hanno performance migliori 
+					  
+					  ottimizzazioni: - bitmap indexes: utili dove ci sono molte operazioni di AND e OR per confrontare predicati
+					  				  - join indexes: pre-computano le join tra le tabelle cosi da renderle più efficienti
+					  				  - materialized views: pre-computano view utili
+					  				  
+data mining: processo che permette di ricavare informazioni "nascoste" mettendo insieme più dati tra loro per ricavare una statistica
+			
+			 si basa sul ragionamento fondamentale body -> head (es: se una persona compra degli sci -> che probabilmente comprerà degli scarponi da sci anche)
+			 
+			 parametri: - support: probabilità che nella stessa transazione ci sia sia l'head che il body
+			 
+			 			- confidence: probabilità che ci sia l'head nella transazione t sapendo che c'è il body
+			 			
+
+
+
+------------------------- PHYSICAL DATA STRUCTURES AND QUERY OPTIMIZATION -------------------------
+			 
+i DBMS gestiscono i blocchi della memoria secondaria come se fossero un grande spazio unico.
+per ogni file storano una tabella ma può anche capitare che un file contenga più tabelle o che una tabella sia splittata su più files
+
+componenti fondamentali: - blocks: componente fisico, la sua grandezza dipende dal file system usato
+						 - records: componente logico: la sua grandezza dipende dall'esigenza dell'applicazione
+						 
+						 se Sr(size record)< Sb(size block) allora posso avere più record all'interno di uno stesso blocco. lo spazio rimanente nel blocco può essere usato(spanned records) oppure no(unspanned recors)
+						 
+						 
+ogni DBMS ha la sua struttura fisica di accesso e i suoi metodi di accesso, i quali sono componenti software che manipolano questa struttura.
+la struttura può essere di 3 tipi: - sequential: le tuple vengono immagazzinate in maniera sequenziale sul disco
+												 
+												 3 tipi diversi: - entry-sequenced: le tuple vengono scritte nell'ordine in cui arrivano; la prima che arriva viene scritta prima
+												 									ottima per le operazioni di scrittura e lettura sequenziali
+												 									non ottima per la ricerca
+												 									
+												 				 - array: le tuple possono essere inserite come in u array a second dell'indice; è possibile solo se tutte le tuple hanno la stessa grandezza fissata a priori
+												 				 
+												 				 - sequentially ordered: le tuple sono ordinate tramite un campo chiamato row key; non si usa quasi più questa tecnica perchè molto poco efficiente quando si ha un inserimento
+												 				 
+								   - hash based: si basa sul riconoscimento della tupla tramite la coppia chiave valore.
+								   				 
+								   				 data una struttura di B blocchi, una volta usata la funzione di hash sulla chiave questa restituisce un valore compreso tra 0 e B-1 che è la posizione
+								   				  
+								   				 2 fasi: - folding: la chiave viene trasformata in un valore intero non negativo
+								   				  		 - hashing: la chiave trasformata viene hashata e il valore di ritorno è la posizione della tupla cercata
+								   				  		 
+								   				  partizionare bene il numero di blocchi: - T: numero di tuple aspettate nella pagina
+								   				  										  - F: numero medio di tule presenti in ogni pagina
+								   				  										  - B = T/(0.8*F)
+								   				  										  
+								   				  possono verificarsi collisioni(2 chiavi diverse restituiscono la stessa posizione).
+								   				  a questo problema si può ovviare con: - chaining: creo una lista di valori in un unica casella(aggiungo un costo computazionale di O(n) alla ricerca
+								   				  										- uso il prossimo blocco in sequenza libero per immagazzinare il valore
+								   				  										- uso un file extra chiamato "overflow file" e immagazzino li il dato
+								   				  										
+								   				  questa struttura è inefficiente sulle ricerche dove non si conosce la chiave o sulle ricerche basate su offset dalla partenza
+								   				  	
+								
+								   - tree based: struttura più usata
+								   				
+								   				 si avvale di indici( assimilabili all'indice di un libro), possono essere di diversi tipi: - primary index: indice basato sulle chiavi primarie delle tuple
+								   				 																							- secondary index: indice basato sugli attributi della tupla
+								   				 																							- dense index: per ogni tupla ho un entry nell'index file
+								   				 																							- sparse index: ho un entry nell'index file solo ogni tot di tuple
+								   				 																							- clustered index: gli indici sono dati dal posizionamento del file nel file system
+								   				 																				
+								   				 ogni node dell'albero corrisponde a un blocco
+								   				 
+								   				 2 tipi di albero: - B+ trees: le foglie sono legate tra di loro come una lista, molto efficienti per le interval queries
+								   				 				   - B trees: i nodi intermedi hanno 2 puntatori per ogni coppia chiave valore: - uno punta al nodo con la chiave esatta
+								   				 				   																				- l'altro punta ad un sotto-albero contenente tutte le chiavi > Ki e < di Ki+1 
+								   				 
+								   
+nelle strutture sequenziali ed hash based la struttura delle pagine è la stessa ed è la seguente: - block header: contiene le informazioni utili al file system						<------ inizio pagina
+																								  
+																								  - page header: contiene le informazioni utili al metodo di accesso
+																								  
+																								  - page dictionary: contiene i puntatori alle varie tuple
+																								  
+																								  - useful data: contiene le tuple vere e proprie
+																								  
+																								  - checksum:serve per verificare l'integrità dei dati
+																								  
+																								  - page trailer: contiene le informazioni utili al metodo di accesso
+																								  
+																								  - block trailer: contiene le informazioni utili al file system					<------ fine pagina
+																								  
+																								  
+																	
+																								  
+																			  	 
