@@ -264,6 +264,20 @@ la struttura può essere di 3 tipi: - sequential: le tuple vengono immagazzinate
 								   				 2 tipi di albero: - B+ trees: le foglie sono legate tra di loro come una lista, molto efficienti per le interval queries
 								   				 				   - B trees: i nodi intermedi hanno 2 puntatori per ogni coppia chiave valore: - uno punta al nodo con la chiave esatta
 								   				 				   																				- l'altro punta ad un sotto-albero contenente tutte le chiavi > Ki e < di Ki+1 
+								   				 				   																				
+								   				 				   	operazioni fondamentali: - SPLIT: se non posso aggiungere una entry in un nodo perchè è pieno allora devo splittare il nodo in 2 e aggiungere il puntatore al nodo padre. cosi mantengo
+								   				 				   									  la proprietà che una coppia chiave valore deve puntare sempre a valori di chiave > di K
+								   				 				   									  
+								   				 				   									  es: nodo padre: 		|| k1 || k6 || || |				inserisco k3					|| k1 || k3 || k6 || |
+								   				 				   									  														------------->      
+								   				 				   									  	  nodo figlio:		|| k1 || k2 || k4 || k5 |										|| k1 || k2 || || |		|| k3 || k4 || k5 || |
+								   				 				   									  	  
+								   				 				   							 - MERGE: si ha quando c'e un eliminazione di una chiave e posso unire 2 nodi in uno unico perchè ho tanti posti disponibili quanti sono i valori nel
+								   				 				   							 		  blocco da unire
+								   				 				   							 		  
+								   				 				   							 		  es: nodo padre: 		|| k1 || k3 || k6 || |							 	 elimino k2						|| k1 || k6 ||  || |
+								   				 				   									  																			------------->      
+								   				 				   									  	  nodo figlio:		|| k1 || k2 || || |		|| k3 || k4 || k5 || |										|| k1 || k3 || k4 || k5 |	
 								   				 
 								   
 nelle strutture sequenziali ed hash based la struttura delle pagine è la stessa ed è la seguente: - block header: contiene le informazioni utili al file system						<------ inizio pagina
