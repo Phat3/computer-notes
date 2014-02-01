@@ -1,0 +1,102 @@
+DATABASE 2
+
+------------------------- COMMIT PROTOCOLS -------------------------
+
+ACID distribuito: - Atomicità: proprietà più difficile da ottenere in un sistema distribuito (garantita dai vari protocolli di commit)
+				  - Consistenza: se le transazioni preservano la loro integrità sono consistenti, per fare ciò si adotta il 2PL
+				  - Isolamento: se tutte le transazioni sono adottano il protocollo "two phase" è garantito
+				  - Durabilità: se tutte i branch distribuiti mantengono bene i log è garantita la durabilità
+				  
+possibili situazioni di errore: - perdita del messaggio
+								- problemi ad un nodo (locale)
+								- problemi al network
+								
+protocolli: - Two phase commit: - 2 componenti fondamentali: - transaction manager: coordina i vari componenti in gioco
+																					
+																					compiti: - prepare: identificare i r. m.
+																							 - global commit/abort: prendere decisioni globali sull'esito delle transazioni
+																							 - complete: chiudere il protocollo
+															
+															 - resource manager: nodi local coordinati dal t.m.
+															 					
+															 					 compiti: - ready: stato che mi identifica agli occhi del t.m (ok se dico si ad una richiesta di prepare)
+															 					 		  - local commit/abort: decisione locale sull'esito della transazione
+															 					 		  
+								funzionamento: - fase 1 : 1 - il t.m scrive sul log "prepare"
+														  2 - il t.m manda un messaggio di prepare a tutti gli r.m
+														  3 - gli r.m decidono se accettare o no la richiesta di prepare
+														  4 - i r.m comunicano la loro decisione al t.m
+														  
+														  
+												- fase 2: 5 - il t.m guarda tutti i messaggi di risposta e se almeno uno è no scrive "global abort" sul log(anche se scade il timeout)
+														  	  altrimenti scrive "global commit"
+														  6	-  il t.m comunica la decisione a tutti gli r.m
+														  7 - gli r.m decidono localmente se accettare o no il commit della transazione
+														  8 - gli r.m comunicano con ack al t.m la ricezione del messaggio
+														  9 - il t.m scrive "complete" sul log
+														  
+								problemi: - problemi al t.m : 2 compiti per recuperarlo: - l'ultimo record sul log è "prepare", il fallimento potrebbe aver lasciato dei r.m in stato di blocco 
+																						   e si può procedere in 2 modi:
+																						   1 - scrivere global abort e portare a termine la fase 2 del protocollo.
+																						   2 - ripetere la prima fase
+																						   
+																						 - l'ultimo record è una global decision, alcuni r.m sono bloccati ripetere la fase 2 del protocollo
+																						 
+										  - problemi agli r.m : causati da un warm restart: - ultimo record è una local decision: - se commit fare il redo di tutte le azioni dopo
+										  																						  - se abort fare l'undo di tutte le azioni
+										  													- ultimo record è ready: richiedere l'esito al t.m(remote recovery)
+										  													
+										  - problemi di network : - perdo messaggi prepare o ready: scade il time out e scrivo global abort
+										  						  - perdo messaggi di ack o msg. scade il timeout e ripeto la fase 2 del protocollo
+										  						  							   
+								ottimizzazioni: - presumed abort protocol: se il t.m riceve un richiesta di remote recovery e non sa ancora in che stato è la transazioe, allora risponde con un global abort
+												
+												- read-only	optimization: se un r.m vuole solo leggere comunicherà al t.m al posto di "ready" read only e questo r.m  verrà ignorato nella fase 2 del protocollo dal t.m			
+												
+			- four phase commit: come il two fase cmmit solo che è presente un backup del t.m, ogni volta che il t.m scrive un record sul log lo comunica al backup che a sua volta lo scriverà nel suo log
+								 quando si ha un caso di failure nel t.m il backup prenderà il suo posto e diventerà lui il t.m rendendo il failure trasparente.
+								 come prima operazione il nuovo t.m creerà un nuovo backup
+																	 
+			- three phase commit: ogni r.m può essere eletto a t.m: - se come ultimo record ha "ready" allora può ipotizzare che la transazione sia fallita e scrivere global abort
+																	- se come ultimo record ha pre- commit può fare un global commit
+																										
+			- paxos: combina un protocollo con il commit protocol, alcun r.m agiscono da acceptors
+										  
+			- x-openDTP: espone delle interfacce: - t.m interface: definisce le funzioni del t.m che possono essere chiamate dai client: - tm_init, tm_end: inizia e termina il dialogo con il client
+																																		 - t_mopen, tm_term: apre e chiude la sessione con il tm
+																																		 - tm_begin: inizia una transazione
+																																		 - tm_abort, tm_commit: richiesta di global commit/abort
+												  
+												  - xa interface: definisce le funzioni dei client remoti	
+												  
+						  i client sono passivi e il protocollo supporta decisioni euristiche(dopo un failure posso decidere se fare un commit o un abort).
+						  usa il protocollo two phase commit con ottimizzazioni		
+						  
+						  
+						  
+------------------------- DISTRIBUTED DATABASE -------------------------
+
+architetture client server: - client: formula le query e mostra i risultati
+							- server: risolve le query e calcola i risultati
+							
+process nel server: - richieste accodate in una coda di input
+					-  richieste smistate tra i vari servizi
+					- risultato accodato in una coda di output
+					-risultato spedito al client appropriato
+					
+famiglie DBMS: - omogenei: stessa "marca" (oracle, sybase, ecc...)
+			   - eterogenei: "marche diverse"
+			   
+data fragmentation: proprietà che deve rispettare: - completezza: ogni elemento della tabella T deve essere presente in uno dei suoi frammenti
+												   - restorability: la tabella T deve poter essere ricostruita dai suo frammenti
+												   
+					tipi di frammentazione: - horizontal fragmentation: - frammento: insieme di tuple
+																		- completezza: disponibilità di tutte le tuple
+																		- restorability: UNIONE di tutte le tuple
+											
+											- vertical fragmentation: - frammento: insieme di attributi
+																	  - completezza: disponibilità di tutti gli attributi
+																	  - restorability: JOIN  sugli attributi
+																	  
+																	  (PROBLEMA: devo duplicare la chiave primaria su ogni frammento per poter ricostruire)
+																	  	 

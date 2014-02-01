@@ -25,7 +25,9 @@ SET UP J2EE GLASSFISH JAVA ENVIRONMENT
 
 11 - copy your mysql connector into <glassfish installation path>/glassfish/domains/<domain's name>/lib/ext
 
-12 - go to your admin glassfish panel and create a new jdbc connection pool with the name of your db
+12 - go to your admin glassfish panel and create a new jdbc connection pool(this allows glassfish to connect withe the specified db) with the name of your db
+
+13 - go to your admin glassfish panel and create a new jdbc resources(this allows to the applications to interface with the db) with the connection pool created at the previous point
 
 ========== MYSQL SETUP ===========
 
@@ -43,19 +45,23 @@ SET UP J2EE GLASSFISH JAVA ENVIRONMENT
 
 17 - enter in mysql with root privileges "mysql -u root -p"
 
-18 - go to eclipse
+18 - create a new user -- create user '<username>'@'<serverAddress>' identified by '<password>'
 
-19 - go to data source explorer (in jave EE prospective)
+19 - give the privilege to the user created at the previous point -- grant all on <databaseName>.* to '<username>'@'<serverAddress>'
 
-20 - connect with your database specifying the driver, the version of mysql and the correct password, user and url
+20 - go to eclipse
+
+21 - go to data source explorer (in jave EE prospective)
+
+22 - connect with your database specifying the driver, the version of mysql and the correct password, user and url
 	 (es: password: pass
 	 	  user: root
 	 	  url: jdbc:mysql://localhost:3306/<name of the database>)
 
-21 - try your connection
+23 - try your connection
 
 ========== DEPLOY YOUR APPLICATION ===========
 
-22 - go to server tab in java EE prospective and change the publishing option of your server
+24 - go to server tab in java EE prospective and change the publishing option of your server
 
-23 - click on the app and run as a server
+25 - click on the app and run as a server
