@@ -104,7 +104,13 @@ deadlock: metodi per evitarlo: - timeout: la transazione è killata dopo un tot 
 							   						 						
 							   						 					   se in un nodo trovo un ciclo allora sono in deadlock
 							   						 					    
-							   						  	  																								      
+------------------------- RELIABILITY CONTROL -------------------------
+
+buffer management: basato su 4 primitive: - fix : carica la pagina nel buffer
+										  - use: usa una pagina del buffer
+										  - unfix: de - alloca una pagina
+										  - force: trasferisce in modo SINCRONO la pagina dal buffer al db	
+										  - flush: trasferisce in modo ASINCRONO la pagina dal buffer al db						   						  	  																								      
 				  								 
 				  
 
