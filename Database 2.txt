@@ -1,5 +1,113 @@
 DATABASE 2
 
+------------------------- TRANSACTIONAL SYSTEMS -------------------------
+
+
+ACID: - Atomicità: la transazione è considerata come una trasformazione autonoma: possibili svolgimenti: - COMMIT: la transazione ha successo
+																										 - UNDO: la transazione fa un rollback
+																										 - REDO: la transizione fallisce dopo il commit e si avanza allo stato successivo
+	  				garantita da: - abort, rollback ecc
+	  							  - commit protocol
+	  							  - reliability control
+	  				
+	  - Consistenza: la transazione deve rispettare i vincoli di integrità
+	  				 - garantita da: - controllo di integrità sulle query a compile time
+	  
+	  - Isolamento: la transazione non deve venire influenzata dal comportamento delle altre
+	  				garantita da: - controllo di concorrenza
+	  
+	  - Durabilità: l'effetto della transazione deve essere immagazzinato in modo permanente 
+	  				garantito da:  - reliability control
+	  				
+
+------------------------- CONCURRENCY CONTROL -------------------------
+
+problemi comuni: - lost update: leggo un dato vecchio, una transazione prima di me aggiorna il dato e io lo sovrascrivo con uno sbagliato ( perdo l'aggiornamento precedente!! )
+				 
+				 - dirty read: leggo un dato di una transazione che in seguito farà un rollback, il dato letto è quindi sbagliato
+				 
+				 - non repeatable read: leggo 2 volte lo stesso dato senza aggiornarlo tra le 2 letture, i dat potrebbero essere diversi perchè aggiornati da un'altra transazione
+				 
+				 - ghost update: se devo eggere più di un dato è possibie che tra la lettura del primo  quello dell'ultimo i dati in mezzo siano stati modificati da altre transazioni
+				 
+schedule: sequenze di operazioni input output di transazioni concorrenti
+
+scheduler: componente che analiza gli schedule e decide se accettarli o meno
+		   deve rifiutare quelli che causano anomalie
+		   
+serializable schedule: produce lo stesso effetto di uno schedule seriale sulle stesse transazioni
+
+tipi di schedule: - seriale: tutte le operazioni della stessa transazione sono svolte in modo contiguo
+				
+				  - view serializable(VSR): 2 schedule sono VSR se hanno: - stesse read from: non devo leggere il dato da 2 scritture diverse
+				  														  - stesse final write: l'ultima scrittura deve essere sulla stessa risorsa
+				  														  
+				  - conflict serializable(CSR): 2 transazioni sono in conflitto se operano sullo stesso dato e almeno un operazione è una write
+				  								CSR -> VSR
+				  								testo la proprietà CSR attraverso un grafo: se è aciclico allora è CSR
+				  								
+				 - 2PL: nella pratica si usa un sistema di LOCK/UNLOCK sulle risorse: - read: faccio una shared lock
+				  																	  - write: faccio una exclusive lock
+				  																							  
+				  		si usa il metodo two phase locking(2PL) per garantire l'assenza di conflitti: - una risorsa non può più acquisire lock sulle risorse dopo che ha effettuato un unlock
+				  																					  - i lock possono essere rilasciati solo dopo un commit o un abort(strict 2PL)
+				  																					  
+				 - mono timestamp(MonoTS): ogni transazione ha un timestamp che identifica l'istante di inizio(problema: non ho un timestamp globale, devo ricavarlo tramite messaggi)
+				 						   
+				 						   funzionamento: - lo schedule ha 2 contatori per ogni risorsa: WTM(x) e RTM(x)
+				 						   
+				 						   				  - lo schedule riceve le richieste con il read TS e il write TS delle transazioni
+				 						   				  		
+				 						   				  		- read(x, ts): - se ts < WTM(x) l'operazione è rifiutata e l transazione killata(sto cercando di legere un dato vecchio)
+				 						   				  					   - altrimenti l'operazione è accettata e RTM(x) = max (RTM(x), ts)
+				 						   				  		
+				 						   				  		- write(x, ts): - se ts < WTM(x) o ts < RTM(x) l'operazione è annullata e la transazione killata( sto cercando di sovrascrivere un dato che altri hanno già letto con un vecchio)
+				 						   				  						- altrimenti la richiesta è accettata e WTM(x) = ts
+				 						   				  						
+				 						   	è incomparabile con il 2PL ma è sottoinsieme di CSR
+				 						   	
+				 - multiversion concurrency control(MultiTS): le scritture generano nuove copie e le letture accedono alla copia giusta
+				 											  ci sono molti WTM(x) ma un solo RTM(x)
+				 											  
+				 											  funzionamento: - read(x, ts): sempre accettata, accedo alla copia giusta secondo il mio ts, se ts è maggiore dell'ultima copia di WTM(x) accedo all'ultimo WTM(x)
+				 											  					
+				 											  				 - write(x, ts): - se ts< RTM(x) la transazione è killata
+				 											  				 				 - altrimenti una nuova copia è creata con WTMk(x) = ts 
+				 											  				 				  
+
+esistono 4 livelli di isolamento in SQL: - read uncommitted: non ci sono le read lock, permette il dirty read
+										
+										 - read committed: ci sono le lock ma non è 2PL, posso avere non repeatable read
+										 
+										 - repeatable read: 2PL, perette i phantom insert
+										 
+										 - serializable: 2PL con predicate lock, evita tutte le anomalie
+										 
+sistema di lock gerarchico: sistema di lock con diversa granularità(tabelle, pagine, tuple ecc..)
+							
+							5 stati di lock: - ISL: intention of share lock: lo faccio sulla pagina che contiene la risorsa se ho intenzione di LEGGERE
+											 - IXL: intention of exlusive lock:	lo faccio sulla oagina che contiene la risorsa se ho intenzione di SCRIVERE
+											 - SIXL: blocco in shared mode con intenzione di bloccare in exlusive mode in seguito	
+											 
+deadlock: metodi per evitarlo: - timeout: la transazione è killata dopo un tot di tempo di attesa.
+										  problemi: - timeout troppo lungo: perdo tempo inutile
+										  			- timeout troppo corto: rischio di killare transazioni che non erano in deadlock
+										  			
+							   - deadlock prevention: killo transazioni che POTREBBERO andare inn deadlock
+							   						  es: assegno ad ogni transazione un "età" e se una transazione aspetta una transazione più giovane la killo
+							   						  
+							   						  	  posso	avere molte kill inutili es: T1 aspetta T2 che aspetta T3 -> no deadlock ma T1 e T2	killate comunque
+							   						  	  
+							   - deadlock detection: richiede un algoritmo in grado di capire se le transazioni sono in uno stato di deadlock
+							   
+							   						 obermark's algorithm: trasmetto le sequenza possibile di deadlock ad un altro nodo se E - Ti - Tj -E con i>j
+							   						 						
+							   						 					   se in un nodo trovo un ciclo allora sono in deadlock
+							   						 					    
+							   						  	  																								      
+				  								 
+				  
+
 ------------------------- COMMIT PROTOCOLS -------------------------
 
 ACID distribuito: - Atomicità: proprietà più difficile da ottenere in un sistema distribuito (garantita dai vari protocolli di commit)
@@ -295,6 +403,152 @@ nelle strutture sequenziali ed hash based la struttura delle pagine è la stessa
 																								  - block trailer: contiene le informazioni utili al file system					<------ fine pagina
 																								  
 																								  
-																	
-																								  
-																			  	 
+------------------------- XQUERY/XPATH -------------------------																	
+
+xPath sintassi: - 'nodename' : seleziona tutti i figli del nodo specificato
+
+				- '/' : seleziona dal nodo root tutti i nodo
+				
+				- '//' : seleziona tutti i nodi partendo dal nodo corrente che matchano la ricerca, anche se non sono figli del nodo
+				
+				- '.' : seleziona il nodo corrente
+				
+				- '..' : seleziona il padre del nodo corrente
+				
+				- '@' : seleziona gli attributi
+				
+				- 'doc(nomeDocumento.xml)' : specifica il documento da aprire
+				
+				- 'doc(nomeDocumento.xml)/figlio1/figlio2[elemento = "condizione"]/figlio3': specifica da che discendenza partire e che condizioni devono rispettare alcuni figli
+				
+				- 'doc(nomeDocumento.xml)/figlio1[n] : ritorna l'ennesima occorrenza del figlio1
+				
+				
+				esempi di sintassi abbreviata: - $x/figlio1 : seleziona tutti i discendenti del tipo figlio 1
+												
+											   - $x//figlio1 : seleziona tutti i nodi di tipo figlio1 indipendentemente da dove sono basta che siano discendenti dei nodi di tipo $x
+											   
+											   - $x/.. : seleziona il nodo padre
+											   
+											   - $x/@year :seleziona tutti i nodi che hanno attributo year
+											   
+											   - $x/. : seleziono me stesso
+											   
+				predicati: $x/figlio1[predicato] : es: - $x/figlio1[last()] : ultimi figlio di tipo figlio1 e discendenti di $x
+														
+													   - //title[@lang = 'ita'] : seleziona tutti i nomi che hanno come attributo lang e che sia uguale a 'ita'
+													   
+													   - /bookstore/book[price] : seleziona tutti i nodi book figli di bookstore e che hanno ome elemento price
+													   
+				operatore '|' : es: - /bookstore/book/title | //price : seleziona tutti i i title figli di book figli di bookstore E seleziona tutti i prezzi in tutto il documento
+				
+									- //title | //price : seleziona tutti i titoli presenti nel documento E tutti i prezzi presenti nel documento
+									
+
+
+xQuery: elementi fondamentali : - items : nodi o valori atomici
+								
+								- nodi: documento | elemento | namespace | attributo | testo ecc..
+										   
+								- valori atomici : istanza di un valore atomico in XML (decimal,stringa , boolean ecc... )
+								
+								
+		regole di risoluzione delle query: sintassi :(item1, item2, ecc...)
+		
+										   - gli items possono essere eterogenei: es: (<a/> , 3)
+										   
+										   - le query possono contenere duplicati: es: (1,1,1)
+										   
+										   - le sequenza innestate sono automaticamente appianate: (1,1,(2,3)) -> (1,1,2,3)
+										   
+		operazioni possibili: unione: rimuove i duplicati es: $x = <a/>	, $y = <b/> , $z = <c/>
+															  ($x, $y) union ($y, $z) -> ($x, $y,$z)
+															  
+		sintassi base = prologo + espressione: - prologo: specifica su quale dominio valutare l'espressione 
+		
+											   - espressione: espressione da valutare
+											   
+											   variabili: - let $x := expr
+											   
+											   funzioni importanti: - doc(docName.xml)	: apre il file
+											   						- empty(item*) : dice se è vuoto o no l'elemento
+											   						- index-of(item* , item)
+											   						- dinstinct-value(item*)
+											   						- dinstinct-nodes(node*)
+											   						- union(node*, node*)
+											   						- contains(string, string)
+											   						- date(string)
+											   						-deep equal (item1, item2) : ritorna true se tutti gli elementi di item1 sono uguali a quelli di item2 nello stesso ordine
+											   	
+											   	dichiarare una funzione: declare function ns:foo($x as xs:integer) as element(){
+											   									<a>{$x +1}</a>
+											   							 }   																							  
+		FLWOR expressions: - FOR : for 'variabile' in 'espressione' es: for $x in doc(book.xml)/book
+																		return $x/title
+							
+						   - LET: let 'variabile' := 'espressione'
+						   
+						   - WHERE: where 'variabile' = 'condizione' , posso legarle con and or ecc...
+						   
+						   - RETURN: ritorna dei dati xml: posso specificare nuovi tag: es: for $x in doc(book.xml)//book
+						   																	where $x/price > 60
+						   																	return <expensive_book>
+						   																			{$book/title}  <!-- ritorna tag title  -->
+						   																		   </expensive_book>
+						   																		   
+						   - ORDER BY: order by ('variabile' || 'espressione')
+						   
+						   - IF : if ('condizione') then ('azione')
+						   		  else ('azione')
+						   		  
+						   - JOIN : for $b in doc(book.xml)//book
+						   				$p in doc(publisher.xml)//publisher   ------> posso scorrere su 2 documenti diversi e confrontarne i campi
+						   			where $b/publisher = $p/name
+						   			return ($b/title, $p/address)	
+						   			
+		inserimento : do_insert 'codice xml' into 'file.xml'
+		
+		
+------------------------- ACTIVE DATABASES -------------------------
+
+Trigger: - definiti da: - nome
+						- nome della tabella monitorata
+						- metodo di esecuzione (BEFORE azione, AFTER azione)
+						- evento monitorato (INSERT, DELETE, UPDATE)
+						- granularità ( STATEMENT, ROW)
+						- condizione
+						- azione da svolgere
+						
+		   sintassi: create trigger <nome_trigger>
+		   			 {before | after}
+		   			 {insert | delete | update} on <nome_tabella>
+		   			 for each {row | statement}
+		   			 when <condizione>
+		   			 <codice_SQL>
+		   			 
+		   			 
+		   granularità: - statement: il comando viene considerato ed eseguito una sola volta per ogni istruzione, indipendentemente dal numero di tuple modificate
+		   						
+		   						2 reference utili: - old table: valore vecchio di tutte le tuple modifcate
+		   										
+		   										   - new table: valore nuovo di tutte le tuple modificate
+		   				
+		   				- row: il comando viene eseguito una volta per ogni tupla modificata
+		   											 
+		   						2 reference utili: - old: valore della tupla prima della modifica
+		   										
+		   										   - new: valore della tupla dopo la modifica
+		   										   
+		   	3 proprietà fondamentali: - terminazione: non devono crearsi cicli infiniti
+		   							  
+		   							  - confluenza: i trigger producono sempre lo stesso stato finale indipendentemente dalla sequenza in cui vengono eseguiti
+		   							  
+		   							  - determinismo delle osservazioni: devono essere confluenti e produrre la stessa sequenza di messaggi
+		   							  
+		   							  la proprietà di terminazione viene verificata attraverso l'uso dei grafi: - nodi: uno per ogni trigger
+		   							  																			
+		   							  																			- archi(i,j): se l'azione del trigger i fa scattare il trigger j
+		   							  																			
+		   							  se il grafo è aciclico allora è verificata la proprietà di terminazione
+		   							  
+		   							  se il grafo è ciclico POTEREBBE non terminare (non è detto)

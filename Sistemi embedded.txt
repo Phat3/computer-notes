@@ -414,7 +414,7 @@ processo planare: principale processo di produzione degli ASIC.
 				   			
 				   			6 - base: si opera un'altra operazione di deposizione, lavaggio, e maschramento nella zona p-well per stampare le zone che andranno drogte n
 				   			
-				   			7 - emettitore e collettore: si fa la stessa cosa di sopra però drogando p
+				   			7 - emettitore e collettore: si fa la stessa cosa di sopra però drogando n
 				   			
 				   			8 - ossidazione: si deposita uno strato di ossido di silicio su tutto il wafer
 				   			
@@ -516,7 +516,7 @@ ci sono altri vari fattori da considerare inoltre: - prestazioni: misure basate 
 												   - software: quante librerie ha a disposizione quell'architettura e se eventualmente è presente un S.O
 												  
 												   - periferiche: valutare se serve avere un microprcessore(pura unita di calcolo) che lascia libertà al progettista di scegliersi le sue periferiche,
-												  			 	  oppure un microcontrollore( chip + periferiche già assemblate)
+												  			 	  oppure un microcontrollore(chip + periferiche già assemblate)
 												  				 
 -GPP: utili nelle applicazioni che hanno bisogno dell'interazione con l'uomo per funzionare.
 		
@@ -1012,7 +1012,7 @@ principali strumenti di debugging: - objdump: permette di vedere un contenuto di
 4 fasi di testing: - simulazione: tutti gli elementi del sistema sono simulati
 								  si crea prima il modello dell'ambiente e poi quello del sistema
 								  
-								  3 tipi di simulazione: - one way: si ignora il comportamento del sistema e si prendono in considerazione solo l'input e l'output generato
+								  3 tipi di simulazione: - one way: si ignora il comportamento dell'ambiente e si prendono in considerazione solo l'input e l'output generato
 								  									il sistema viene simulato al computer
 								  									 
 								  						 - feedback: si considera anche il comportamento dinamico dell'ambiente SIMULANDOLO, possibile solo se si hanno modelli semplici
