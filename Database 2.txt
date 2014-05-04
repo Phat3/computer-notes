@@ -110,7 +110,24 @@ buffer management: basato su 4 primitive: - fix : carica la pagina nel buffer
 										  - use: usa una pagina del buffer
 										  - unfix: de - alloca una pagina
 										  - force: trasferisce in modo SINCRONO la pagina dal buffer al db	
-										  - flush: trasferisce in modo ASINCRONO la pagina dal buffer al db						   						  	  																								      
+										  - flush: trasferisce in modo ASINCRONO la pagina dal buffer al db		
+										  
+				   policies: - STEAL: la pagina è strappata alla transazione attiva
+				   			 
+				   			 - NO STEAL
+				   			 
+				   			 - FORCE: pagine scritte dopo il commit
+				   			 
+				   			 - NO FORCE
+				   			 
+				   			 - PRE-FETCHING: anticipa la lettura delle pagine
+				   			 
+				   			 - PRE-FLUSHING: anticipa la scrittura delle pagine de allocate	
+				   			 
+transactional rules: - write ahead log: la parte di before-state va scritta prima sul log e poi va fatta l'operazione( non facendo questo non potrei fare un rollback)
+
+					 - commit rules: devo scrivere l'after-state prima sul log e poi fare il commit(se non lo facessi non potrei fare il redo)
+					 		   						  	  																								      
 				  								 
 				  
 
