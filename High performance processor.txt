@@ -1,0 +1,56 @@
+HIGH PERFORMANCE PROCESSOR
+
+Principali colli di bottiglia che intaccano le prestazioni: - logic memory gap: la memoria è è più lenta del processore
+															- esecuzione seriale: prima che un'istruzione inizi deve essere finita la precedente
+															- esecuzione sequenziale: non posso eseguire un istruzione successiva prima di una precedente
+															
+--------------------- CACHE ---------------------------
+
+principio di località: - spaziale: se ho fatto un accesso ad un indirizzo di memoria molto probabilmente, in un futuro prossimo farò un accesso ad un indirizzo vicino
+								   a quello appena acceduto
+								  
+					   - temporale: se ho fatto un accesso ad un indirizzo di memoria molto probabilmente in un prossimo futuro accederò ancora allo stesso indirizzo
+					   
+problemi della cache: - block placement: dove posizionare un blocco nella cache
+					  - block replacement: quale blocco sostituire in caso di miss per fare posto al blocco proveniente dal livello sottostante
+					  - block identification: come identificare un blocco nella cache
+					  
+cause di miss: - Compulsory miss: miss dovuti al riempimento iniziale della cache (appena accendo la macchina la cache è vuota)
+
+			   - Capacity miss: miss dovuti alla sostituzione di blocchi in cache a causa dello spazio ridotto. Più la cache è grande più questi miss diminuiscono
+			   
+			   - Conflict miss: miss dovuti a conflitti, più blocchi vengono identificati nello stesso modo. Più è alto il livello di associatività più questi miss si riducono
+			   
+politiche di scrittura: - write through: ogni volta che scrivo sulla cache scrivo anche sulla ram. la consistenza dei dati è sempre rispettata. Le scritture sulla ram avvengono alla velocità della ram e questo
+										 fatto mi limita le prestazioni. Per porre rimedio a questo inconveniente utilizzo un buffer di scrittura da cache e ram.
+										 di solito a questa politica associo una politica di no write allocate
+										 
+						- write back: scrivo in ram solo quando devo sostituire il blocco in cache. Il grande vantaggio di questa soluzione è che a multiple scritture sullo stesso blocco 
+									  corrisponde un'unica scrittura in ram. Per identificare se un blocco è stato modificato o meno aggiungo un dirty bit associato ad ogni blocco in cache.+
+									  se questo bit è settato a 1 significa che il blocco è stato modificato (inconsistente con il dato presente in ram) e quindi se ho un read miss devo andare 
+									  a scrivere il blocco in ram.
+									  a questa politica di solito si associa una politica di write allocate
+						
+						- write allocate: prima carico il blocco in cache e poi lo scrivo
+						
+						- no write allocate: scrivo direttamente il blocco in ram
+						
+ottimizzazioni: - riduzione miss penalty: - introduzione di cache multilivello: politiche: - multilevel inclusion: tutti i blocchi della cache L1 devono essere presenti in L2
+																						   - multilevel exclusion: tutti i blocchi della cache L1 NON devono essere presenti in L2
+																						   
+										  - priorità ai read miss: - write through: in caso di read miss si prende il blocco nel buffer di scrittura e lo si da alla CPU, se non c'è conflitto
+										  							
+										  						   - write back: si scrive il blocco dirty in un buffer, leggo il blocco vero in memoria e lo do alla CPU e solo infine scrivo in memoria
+										  						   
+										  - victim cache: ciò che si è scartato potrebbe presto tornare utile. Si associa una piccola cache di tipo associativo dove finiscono i  blocchi appena scartati
+										  				  prima di andare a vedere in ram guardo li se è presente il blocco che mi serve.
+										  				  
+				
+				- riduzione miss rate: - blocchi più grandi --> i compulsory miss diminuiscono (ho meno blocchi da caricare all'inizio) però aumentano i conflict miss (ho meno possiblità di indicizzazione
+																dei blocchi) e i capacity miss aumentano
+									   
+									   - associatività più grande
+									
+				
+				- riduzione hit time: - semplificare l'accesso alla cache. più la cache si avvicina al tipo direct mapped più è veloce
+																						    
