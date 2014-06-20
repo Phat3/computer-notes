@@ -53,4 +53,286 @@ ottimizzazioni: - riduzione miss penalty: - introduzione di cache multilivello: 
 									
 				
 				- riduzione hit time: - semplificare l'accesso alla cache. più la cache si avvicina al tipo direct mapped più è veloce
-																						    
+
+
+--------------------- PERFORMANCE ---------------------------
+
+legge di amdahl: 1/((1 + parte migliorata) + (parte migliorata)/speedup_dato_dalla_parte_migliorata)
+
+ES:    CPU: 10X faster ---> 10X speedup_dato_dalla_parte_migliorata
+
+	   I/O bound 60% ---> part migliorta = 0.4 
+	   
+	   2 ALU in parallelo ---> clock dimezza
+	   
+Se lo speedup è minore del costo allora non conviene!!!
+
+
+--------------------- MULTICORE --------------------------
+	   
+Si è passati ad utilizzare architetture multicore perchè non si poteva più estrarre ilp da architetture a singolo core ed inoltre i consumi stavano aumentando.
+
+Si è passati quindi ad architetture parallele a livello di processo, cioè ad architetture con più di un'unità di elaborazione
+
+granularità del processo: quantità di lavoro che ogni thread deve svolgere
+
+tassonomia: - SISD: single instruction single data stream: classico processore monocore
+			
+			- SIMD: single instruction multiple data: tutte le cpu hanno lo stesso flusso di istruzioni ma operano su dati diversi (es: GPU, calcolo vettoriale)
+														
+													  c'è una sola copia del codiche che viene scambiata tra tutti i processori(dimensione codice ridotta quindi).
+													  
+													  le istruzioni sono un misto tra SISD e SIMD:
+													  	
+													  		- un'unità centrale esegue le operazioni SISID come salti ecc e manda le operazioni SIMD in broadcast a tutti gli altri core
+													  		
+													  		- i core non hanno dati in comune quindi non ci sono problemi di coerenza tra i dati
+													  		
+													  		- tutti i core sono sincronizzati ed eseguono tutti la stessa istruzione in parallelo
+													  		
+													  		- ogni core possiede propri registri di indirizzamento a memoria
+													  		
+													  		- i dati devono essere caricati in registri vettoriali prima di essere usati
+													  		
+													  		vantaggi: - ogni risultato è indipendente da quelli precedenti
+													  				
+													  				  - ogni istruzione vettoriale fa molto lavoro quindi ho meno salti da risolvere
+													  				  
+													  				  - ogni istruzione carica molti blocchi in memoria e quindi accedo una sola volta in memoria
+													  				  
+			- MISD: multiple instruction simple data: i flussi di istruzioni sono divers tra ogni cpu ma operano tutti sugli stessi dati (soluzione non usata)
+			
+			- MIMD: multiple instruction multiple data: ogni cpu ha un flusso di esecuzione proprio ed opera sui propri dati (in certi casi i dati possono essere condivisi).
+														i moderni multicore commerciali utilizzano questa tecnica
+														
+														per sfruttare al massimo le performance di un processore con n core devo avere almeno n processi/thread da sfruttare in parallelo
+														
+														il parallelismo viene estratto via software esplicitamente(thread) o viene generato dal compilatore
+														
+														- ogni processore esegue un thread/processo
+														
+														- ogni processore può condividere codice e dati con altri
+														
+														- ogni processo può essere indipendente dagli altri
+
+
+modelli di programmazione parallela: problemi: - limitato parallelismo nel codice: non riesco estrarre molto parallelismo dal codice scritto
+
+											   - contention nell'accesso a risorse condivise: se n core accedono alla stessa risorsa n-1 core devono aspettare.
+											   												  per ovviare a ciò introduco cache locali ma introduco anche problemi di coerenza tra i dati
+											   	
+											   - comunicazione tra processori con alta latenza: le comunicazioni tra vari processori richiedono dai 100 ai 1000 cicli di clock e ciò impatta molto sulle performance
+											   
+											   
+									
+									1 - spazio di indirizzamento condiviso: si basa sull'idea che la memoria virtuale di più processi è mappati sullo stesso spazio di memori fisico
+																			questo fa si che vengano introdotti strumenti di coordinazione tra i vari processi per non creare conflitti	
+																			
+																			le scritture che i processi fanno nello spazio condiviso possono esssere lette da altri procesi
+																			
+																			DEVO SPECIFICARE COME I PROCESSI VEDONO L'ORDINE DELLE OPERAZIONI ESEGUITE DA ALTRI PROCESSI
+																			
+																			- memoria centralizzata condivisa: ogni processo può accedere a tutta la ram
+																											   le interconnessioni avvengono tramite bus o tramite Network on chip			 
+ 
+									2 - scambio di messaggi send e receive: lo scambio di dati avviene a livello I/O e non più a livello di memoria
+									
+																			Si basa su na coppia di variabili SEND e RECEIVE che si occupano dello scambio di informazioni tra 2 processi
+																			
+																			NON DEVO SPECIFICARE COME I PROCESSI VEDONO L'ORDINE DELLE OPERAZIONI ESEGUITE DA ALTRI PROCESSI
+
+																			SEND: specifica un buffer locale dove il processo copia i dati da inviare ad un altro processo
+																			
+																			RECEIVE: specifica un buffer locale dove un processo ricevente si aspeta di trovare i dati ricevuti
+																			
+																			il modello base di comunicazione (processo trasmettente - processo ricevente) può essere esteso tramite altre tecniche:
+																				
+																				- store and forward: mi avvalgo di nodi intermedi che immagazzinano i dati trasmessi e poi vengono instradati tramite router
+																				
+																				- lettore dei dati/ scrittore dei dati: la comunicazione viene iniziata tramite messaggi di richiesta
+																														 
+																														es: il lettore di dati richiede dei dati: - manda un messaggio allo scrittore
+																																								
+																																								  2 casi : - attendo senza fare niente
+																																								  		     finchè non ricevo i dati
+																																								  		  
+																																								  		   - vado in busy wait
+																																								  		   	(faccio altro nel mentre)
+																		   
+																		   lo scambio di messaggi può avvenire in 2 modi: - sincrono: mando il messaggio e mi fermo finchè il ricevente non mi comunica 
+																		   															  l'avvenuta ricezione del mio messaggio, e il ricevente 
+																		  														      deve bloccarsi finchè non gli mando la conferma di corretta 
+																		  														      trasmissione dei dati(possibile deadlock)
+																		  														      
+																		  												  - asincrono: mando il messaggio e non mi blocco:
+																		  												  
+																		  												  				2 politiche: - mi blocco solo finchè non ho finito di copiare i dati da
+																		  												  				 			   mandare nel buffer SEND (stesso ragionamento per RECEIVE)
+																		  												  				 			  
+																		  												  				 			 - il trasferimento è eseguito in background
+																		  												  				 			 
+																		  												  				 			 
+									
+									data paralleling: specifico quali operazioni possono fare i thread su determinati dati.
+														
+													  l'ordine delle operazioni è fondamentale per rispettare la coerenza del programma e rispettare le varie dipendenze
+													  
+													  per fare ciò ho bisogno di meccanismi di sincronizzazione: - mutua esclusione: operazioni su particolari dati sono scolte da un solo thread alla volta
+													  															
+													  															 - eventi: specifico eventi che posso lanciare per informare altri thread che alcune dipendenze sono
+													  															 		   state soddisfatte
+													  															 		   
+								    openMP: libreria che facilita il programmatore ad estrarre parallelismo dal codice.
+								    
+								    		si basa sull'idea che il parallelismo è più facile trovarlo nei cicli
+								    		
+								    		se un ciclo esegue operazioni indipendenti tra di loro(non ho bisogno di dati provenienti da operazioni precedenti), lo marco come PRAGMA e questo viene spezzato in 2 range 
+								    		che vengono eseguiti da diverse CPU
+
+
+coerenza e consistenza della cache:	cache COERENTE quando: - un processo legge poi scrive e poi legge e non ci sono scritture da parte di altri processi
+
+														   - un processo P1 legge e poi P2 scrive e il processo P1 sa che P2 ha scritto
+															  
+														   - le scritture su una stessa posizione di memoria sono serializzate (tutti i processi sanno in che ordine la memoria è stata scritta)
+									
+									modello di COERENZA: stabilisce la politica di scrittura e lettura nella stessa posizione di memoria
+									
+									modello di CONSISTENZA: definisce il comportamento di lettura e scrittura rispetto ad accessi ad altre aree di memoria
+									
+									per imporre la coerenza devo tenere traccia dello staso dei dati condivisi attraverso:
+											
+											- migrazione: devo permettere che un dato possa venire spostato nella cache locale del processore ed essere usato in modo trasparente
+											
+											- replicazione: devo permettere che un dato possa essere copiato nella cache locale
+											
+									protocolli per garantire la cache coherence: - SNOOPING: tipica per le architetture con comunicazione a bus
+																				
+																				 - DIRECTORY BASED: soluzione adottata da architetture con memoria condivisa scalabile
+																				 
+									
+									SNOOPING: ogni nodo (cache + CPU) è collegato alla memoria condivisa attraverso un bus e vede tutte le operazioni a memoria che passano sul bus infatti
+											  ogni operazione è visibile a tutti i nodi.
+											  
+											  ogni nodo ha un controllore della cache al suo interno che guarda le operazioni che passano sul bus e determina se l'operazione riguarda dei dati presenti nella sua cache locale
+											  
+											  policy di scrittura: WRITE-INVALIDATE: quando un processore P vuole accedere in SCRITTURE ad un blocco che è presente in cache locale di almeno un altro processoe allora lo invalida per TUTTI i processori.
+											  										 quando un altro processore accederà a quel dato si avrà un miss e si dovrà ricaricare il blocco
+											  										 
+											  snooping asincrono: devo aspettare che alla cache locale arrivi il messaggio di avvenuta terminazione dello snooping da parte di tutte le altre cache
+											  
+											  snooping sincrono: si mette un tetto di tempo massimo dove tutte le cache devono terminare il protocollo di snooping
+											  
+
+sincronizzazione tra processi: 3 componenti fondamentali: - acquisizione: come acquisisco il diritto di entrare nella zona critica
+														  
+														  - algoritmo di attesa: come attendo intanto che ricevo il diritto sulla risorsa
+														  							
+														  						 - busy waiting: controllo una variabile globale finchè non cambia valore (tengo impegnato il processore)
+														  						 
+														  						 - blocking: metto il processo in wait e lo sveglio quando può passare (il processore può svolgere altri compiti intanto che il processo è in wait)														  						
+														  
+														  - rilascio: in che modo consento ad altri processi di proseguire nella zona crtica
+											  
+											  
+													  														  												  				 			 
+								operazioni atomiche: sono garantite da load linked e store conditional: - store condition: restituisce un valore booleano che mi indica se il codice è stato eseguito come operazione atomica
+																															
+																														   ha valore falso se: - durante l'operazione ho una commutazione di contesto
+																														   					  
+																														   					   - durante l'operazione l'area di memoria viene referenziata da un altro processo
+																		   
+								quando ho competizione tra più processi per una risorsa devo garantire: - bassa latenza: il processo deve acquisire la risorsa voluta in modo rapido
+																										
+																										- basso traffico: se più processori tentano di acquisire un lock devo fare in modo che lo acquisiscano uno dopo 'altro generando meno traffico possibile sul bas
+																										
+																										- fairness: idealmente i processori devono prendere il lock in base all'ordine richiesto 
+																										
+																										
+prestazioni: dal punto di vista della CPU ci interessano 3 fattori: - quanto devo aspettare prima di accedere alla risorsa			
+																	
+																	- quanto di questo tempo può essere impiegato per fare altro
+																															 
+																	- con quanta frequenza posso comunicare i dati
+																	
+			 3 fattori che incidono sulle prestazioni: - costo: quanto l'operazione svolta impatta sul tempo di esecuzione
+			 										   - banda: con quale frequenza compio le operazioni
+			 										   - latenza: tempo richiesto da un operazione
+			 										   
+			 T trasferimento = T0 + n/B
+			 					
+			 				   T0: inizializzazione
+			 				   n: numero di byte da trasferire
+			 				   B: banda
+			 
+			 T comunicazione = T cpu overhead + T occupazione + T network delay
+			 
+			 				   T cpu overhead: tempo speso dalla CPU per dare inizio al trasferimento
+			 				   T occupazione: tempo speso per attraversare il nodo più lento
+			 				   T network delay: tempo per instradare il primo bit
+			 				   
+			 costo comunicazione = frequenza comunicazione(T comunicazione - overlap)
+			 
+
+MIMD a memoria fisica distribuita: se voglio supportare un numero maggiore di processori devo per forza utilizzare questa tecnca perchè la banda di comunicazione tra i vari processori non è efficiente
+									
+								   ogni nodo ha CPU+cache+memoria fisica
+								   
+								   la comunicazione tra i vari processori avviene in modo: - diretto: switch ecc..
+								   															
+								   														   - indiretto: maglie multidimensionali
+								   														   
+								   vantaggi: se ho operazioni che riguardano solo il mio blocco locale ho una latenza molto bassa
+								   
+								   svantaggi: comunicazione tra i vari processori più complicata
+								   
+								   2 architetture diverse: - memoria condivisa ma distribuita (DSM): la memoria è fisicamente divisa ma è indirizzata come se fosse un unico blocco contiguo,
+								   															   quindi ogni processore può accedere ad ogni parte di memoria se ne possiede il diritto
+								   															 
+								   						   - memoria logicamente disgiunta: un processore non può in alcun modo accedere agli spazi di memoria degli altri processori.
+								   						   									gli scambi di dati avvengono tramite messaggi
+								   						   									
+								   						   									
+DSM: posso raggiungere migliaia di nodi
+
+	 l'accesso a memoria può essere locale o remoto(locale se si trova nel mio spazio fisico, remoto se si trova nello spazio fisico di un altro processore)
+	 
+	 non posso tenere traccia dello stato dei blocchi in cache tramite protocolli impliciti(snooping) perchè non ho un bus comune a tutti.
+	 
+	 devo usare protocolli espliciti (directory based)
+	 
+	 quando faccio un'operazione in cache lo devo comunicare al componente directory relativo al blocco, questo poi decide cosa fare in base all'operazione:
+	 
+	 	 - scrittura: comunica a tutte le altre cache dove è presente il blocco che c'è stata una scrittura
+	 	 
+	 	 - lettura: ottiene il blocco più aggiornato comunicando con le alte cache		
+	 	 
+	protocolli directory based: - MEMORY CENTRIC: la directory è associata al blocco in memoria principale	
+													
+												  ad ogni blocco è associato un vettore che iene traccia dello stato di quel blocco nelle varie cache(una cella per ogni cache)
+												  
+												  diversi stati può assumere il blocco: - condiviso: il blocco è presente ed aggiornato in più cache
+												  										
+												  										- uncached: il blocco non è presente in nessuna cache
+												  										
+												  										- exclusive: il blocco è presente in una sola cache
+												  										
+												  										- dirty: il blocco è stato aggiornato da una cache e deve essere mandato in copia aglia ltri nodi
+												  										
+												  										- invalid: il blocco è stato aggiornato da un altro nodo e dovrò richiedere il dato aggiornato prima di poterlo usare
+												  										
+												  write miss: tento di scrivere un blocco di cui non ho accesso exclusive. le informazioni di invalidazione vengono mandate a tutti gli altri nodi
+												  			  per fare ciò ho un vettore di bit(uno per cache) che mi indica a quali nodi devo invalidare i blocchi
+												  			  
+												  			  dirty bit off: il nodo è presente in memoria centrale, lo fornisco al nodo richiedente, setto a on il dirty bit e invalido tutti gli altri
+												  			  
+												  			  dirty bit on: il nodo NON è presente in memoria centrale, lo prelevo dal nodo giusto, lo fornisco al nodo richiedente, setto a on il dirty bit e invalido tutti gli altri
+												  
+												  read miss: la directory mi indica dove trovare il blocco aggiornato. per fare ciò ho un vettore di p bit che mi indica quale nodo ha il blocco dirty(più aggiornato)		
+												  
+												  			 dirty bit off: il nodo è presente in memoria centrale e lo fornisco al nodo richiedente
+												  			 
+												  			 dirty bit on: il NON nodo è presente in memoria centrale e lo fornisco al nodo richiedente	e metto a shared il bit di stato	
+												  			 
+												  			 
+								 - CACHE CENTRIC:			   														
